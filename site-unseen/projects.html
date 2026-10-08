@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Projects — DT ALEX STUDIOS</title>
+<meta name="description" content="DT ALEX STUDIOS 作品列表：品牌、平面、空间、动态、数字与个人 AI 项目。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="DT ALEX STUDIOS" />
+  <meta property="og:title" content="Projects — DT ALEX STUDIOS" />
+  <meta property="og:description" content="全部作品：企业级系统、空间视觉、品牌与平面、动态与数字界面，以及自研设计系统的实验。" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Projects — DT ALEX STUDIOS" />
+  <meta name="twitter:description" content="全部作品：企业级系统、空间视觉、品牌与平面、动态与数字界面，以及自研设计系统的实验。" />
+<meta name="theme-color" content="#0C0B0D" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f2eee9'/%3E%3Ctext x='16' y='22' font-family='Helvetica,Arial' font-size='15' font-weight='700' text-anchor='middle' fill='%23111'%3EDT%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="assets/fonts/fonts.css" />
+<link rel="stylesheet" href="css/studios-unseen.css" />
+<script src="js/lang-boot.js"></script>
+</head>
+<!-- 参考站 /projects/ 实测：scrollHeight==视口、overflow:hidden、一个满屏 canvas、零 DOM 图片。
+     所以这一页不滚文档：body.app 锁死一屏，滚轮/拖拽驱动场景里的贴图卡片。
+     作品清单仍以真实 <a> 存在（.plist，视觉隐藏但可聚焦），读屏、键盘和搜索引擎走这份，
+     和参考站"隐藏标签供 SEO/读屏"是同一手法。 -->
+<body class="app">
+  <noscript><div class="nojs">
+    <p class="t-zh">这个作品集用脚本渲染作品清单与案例正文。禁用脚本时，可以直接从下面的链接进入各页：</p>
+    <p class="t-en">This portfolio renders its work list and case text with JavaScript. With scripts disabled, you can still open the pages directly:</p>
+    <ul>
+      <li><a href="projects.html"><span class="t-zh">全部作品</span><span class="t-en">All work</span></a></li>
+      <li><a href="project.html?id=aaos"><span class="t-zh">星环知识平台 ArcheAxis Knowledge</span><span class="t-en">ArcheAxis Knowledge</span></a></li>
+      <li><a href="project.html?id=work-lab"><span class="t-zh">工作流实验室 Workflow Lab</span><span class="t-en">Workflow Lab</span></a></li>
+      <li><a href="project.html?id=design-lab"><span class="t-zh">视觉设计实验室 Visual Design Lab</span><span class="t-en">Visual Design Lab</span></a></li>
+      <li><a href="labs.html"><span class="t-zh">实验场</span><span class="t-en">Labs</span></a></li>
+      <li><a href="about.html"><span class="t-zh">关于</span><span class="t-en">About</span></a></li>
+      <li><a href="contact.html"><span class="t-zh">联系</span><span class="t-en">Contact</span></a></li>
+    </ul>
+  </div></noscript>
+
+<a class="skip" href="#main"><span class="t-zh">跳到主要内容</span><span class="t-en">Skip to content</span></a>
+
+<main id="main" class="stage-app" aria-label="Projects">
+  <canvas id="pstage" class="stageapp" aria-hidden="true"></canvas>
+
+  <div class="stagehead">
+    <h1 class="display m pmark lockup"><span class="t-zh">全部<em>作品</em></span><span class="t-en">All <em>Projects</em></span></h1>
+    <p class="psub"><span class="t-zh">品牌 · 平面 · 空间 · 动态 · 数字 · 个人 AI 项目</span><span class="t-en">Brand · Graphic · Space · Motion · Digital · Personal AI work</span></p>
+    <p class="pfilter">
+      <button type="button" class="pill fbtn" id="fbtn" aria-expanded="false" aria-controls="filters">
+        <span class="t-zh">筛选</span><span class="t-en">Filter</span><span class="pill__ic" aria-hidden="true">⌄</span>
+      </button>
+      <!-- 播报只留焦点条一处：计数和它同为 aria-live 时每切一张会听到两遍。
+           计数仍在 DOM 与无障碍树里（可见、可读），只是不再主动打断。 -->
+      <span class="pcount" id="pcount">01 / 01</span>
+    </p>
+    <div class="filters" id="filters" hidden></div>
+  </div>
+
+  <!-- 焦点条：画面里的卡片是贴图，文字必须留在 DOM 里才可选、可译、可读屏 -->
+  <div class="stagecap" id="stagecap" aria-live="polite">
+    <p class="cap-flag" id="capFlag"></p>
+    <h2 class="cap-title" id="capTitle">—</h2>
+    <p class="cap-desc" id="capDesc"></p>
+    <a class="cap-go pill pill--solid" id="capGo" href="#">
+      <span class="t-zh">查看项目</span><span class="t-en">View project</span> <span class="pill__ic" aria-hidden="true">↗</span>
+    </a>
+  </div>
+
+  <nav class="stagenav" aria-label="Projects navigation">
+    <button type="button" class="orbbtn" id="pPrev" aria-label="上一个 / Previous">↑</button>
+    <button type="button" class="orbbtn" id="pNext" aria-label="下一个 / Next">↓</button>
+  </nav>
+
+  <p class="stagehint"><span class="t-zh">滚轮或拖动浏览 · 点卡片进入</span><span class="t-en">Scroll or drag · click a card to open</span></p>
+
+  <div class="plist is-hidden" id="plist"></div>
+</main>
+
+<script src="assets/js/vendor/three.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/en-copy.js"></script>
+<script src="js/core.js"></script>
+<script src="js/scene.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DTS, H = window.DT, L = H.L;
+  var active = "ALL";
+  var fw = document.getElementById("filters"), fbtn = document.getElementById("fbtn");
+  var list = document.getElementById("plist");
+  var cap = { flag: document.getElementById("capFlag"), title: document.getElementById("capTitle"),
+              desc: document.getElementById("capDesc"), go: document.getElementById("capGo") };
+  var count = document.getElementById("pcount");
+  var rows = [], scene = null;
+
+  fbtn.addEventListener("click", function () {
+    var open = fw.hasAttribute("hidden");
+    if (open) fw.removeAttribute("hidden"); else fw.setAttribute("hidden", "");
+    fbtn.setAttribute("aria-expanded", open ? "true" : "false");
+    fbtn.classList.toggle("on", open);
+  });
+
+  function match(it, f) {
+    if (f === "ALL") return true;
+    if (f === "PERSONAL") return it.personal;
+    return (it.category || []).indexOf(f) > -1;
+  }
+
+  D.tags.forEach(function (t) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = "<span>" + t + '</span><span class="fc">' +
+      D.all.filter(function (x) { return match(x, t); }).length + "</span>";
+    if (t === active) b.classList.add("on");
+    b.addEventListener("click", function () {
+      active = t;
+      Array.prototype.forEach.call(fw.children, function (c) { c.classList.remove("on"); });
+      b.classList.add("on");
+      render();
+    });
+    fw.appendChild(b);
+  });
+
+  function flagOf(it) {
+    if (it.personal) return L.t("AI 能力展示", "AI & Systems");
+    if (it.truth === "placeholder") return L.t("待补真实作品", "Awaiting real work");
+    if (it.truth === "concept") return L.t("概念", "Concept");
+    return L.t("精选", "Selected");
+  }
+
+  /* 真实清单：视觉隐藏但保留在 DOM 与无障碍树里；没有 WebGL 时它会显形成卡片网格。
+     沿用 .pcard/.pcn/.pcd/.pflag 这套类名，和首页那条列表同一口径。 */
+  function rowHtml(it, i) {
+    return '<a class="pcard" data-i="' + i + '" href="project.html?id=' + it.id + '">' +
+      '<div class="pcmeta"><h2 class="pcn">' + H.titleOf(it) + "</h2>" +
+      '<p class="pcd"><span class="pflag">' + flagOf(it) + "</span>" +
+      (it.category || []).join(", ") + " · " + it.year + "</p></div></a>";
+  }
+
+  function pad(n) { return String(n).length < 2 ? "0" + n : String(n); }
+
+  function focus(i) {
+    var it = rows[i];
+    if (!it) return;
+    cap.flag.innerHTML = flagOf(it);
+    cap.title.innerHTML = H.titleOf(it);
+    cap.desc.innerHTML = H.enOf(it, "one");
+    cap.go.href = "project.html?id=" + it.id;
+    count.textContent = pad(i + 1) + " / " + pad(rows.length);
+    var cur = list.querySelector(".pcard.on");
+    if (cur) cur.classList.remove("on");
+    var el = list.querySelector('.pcard[data-i="' + i + '"]');
+    if (el) el.classList.add("on");
+  }
+
+  /* 场景起不来时的唯一出口：清单显形，焦点条 / 圆钮 / 提示一起摘掉（hidden 属性
+     既不出图也不进无障碍树），否则页面上会留一套指向空画面的控件。
+     两条路径共用这一个函数——没有 WebGL（strip 抛错）和 scene.js 根本没加载
+     （连 DTSCENE.ready 都不存在）是同一种后果，不该各写一遍。 */
+  function toDocMode() {
+    scene = null;
+    document.body.classList.add("docmode");
+    list.classList.remove("is-hidden");
+    document.getElementById("stagecap").hidden = true;
+    document.getElementById("pstage").hidden = true;
+    document.querySelector(".stagenav").hidden = true;
+    document.querySelector(".stagehint").hidden = true;
+    /* "01 / 11" 说的是画面里当前抬起的那一张。清单铺开后没有"那一张"，
+       留着这个数就是在报一个不存在的位置。 */
+    count.hidden = true;
+  }
+
+  function render() {
+    rows = D.all.filter(function (x) { return match(x, active); });
+    list.innerHTML = rows.length
+      ? rows.map(rowHtml).join("")
+      : '<p class="pempty"><span class="t-zh">这个筛选下暂时没有条目。</span><span class="t-en">Nothing under this filter yet.</span></p>';
+    if (scene) { scene.stop(); scene = null; }
+    if (!rows.length) {
+      count.textContent = "00 / 00";
+      cap.title.textContent = "—"; cap.flag.textContent = ""; cap.desc.textContent = "";
+      return;
+    }
+    /* scene.js 没到位（被拦、半截下载、语法环境不支持）时，DTSCENE.ready 这一句本身
+       就会抛出去，把 render 打断——那正是上一轮"整页空掉"的同一个后果，必须先接管。 */
+    if (!window.DTSCENE || !DTSCENE.ready) { toDocMode(); return; }
+    DTSCENE.ready(function () {
+      /* 没有 WebGL 就不能让整页空掉：这里兜住异常，把 .plist 那份真实清单
+         显形成卡片网格（它本来就在 DOM 里，是给读屏和搜索引擎的）。 */
+      try {
+        scene = DTSCENE.strip({
+          host: document.getElementById("main"),
+          canvas: document.getElementById("pstage"),
+          bg: 0x0C0B0D,
+          items: rows.map(function (it) {
+            var src = it.cover ? D.M(it.cover) : null;
+            var dim = src ? H.imgDim(src) : null;
+            /* 比例取自素材自身（DTS.IMGDIM），不猜固定值 */
+            return { src: src, ar: dim ? dim.ar : 1.6, id: it.id };
+          }),
+          onFocus: focus
+        });
+        focus(0);
+        list.classList.add("is-hidden");
+        count.hidden = false;         // 上一次筛选可能进过文档模式，计数要跟着画面一起回来
+      } catch (e) {
+        toDocMode();
+      }
+    });
+  }
+
+  document.getElementById("pPrev").addEventListener("click", function () { if (scene) scene.prev(); });
+  document.getElementById("pNext").addEventListener("click", function () { if (scene) scene.next(); });
+  addEventListener("keydown", function (e) {
+    if (!scene) return;
+    if (e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); scene.next(); }
+    if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); scene.prev(); }
+    if (e.key === "Home") { e.preventDefault(); scene.goTo(0); }
+    if (e.key === "End") { e.preventDefault(); scene.goTo(rows.length - 1); }
+  });
+  /* 隐藏清单里的链接要能被键盘聚焦后直接回车进入；聚焦到某条时画面也跟着过去 */
+  list.addEventListener("focusin", function (e) {
+    var a = e.target.closest(".pcard");
+    if (a && scene) scene.goTo(+a.getAttribute("data-i"));
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

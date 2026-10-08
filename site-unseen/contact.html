@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Contact — DT ALEX STUDIOS</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="DT ALEX STUDIOS" />
+  <meta property="og:title" content="Contact — DT ALEX STUDIOS" />
+  <meta property="og:description" content="联系 DT ALEX：合作洽谈、一般联系与公开代码仓库。" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Contact — DT ALEX STUDIOS" />
+  <meta name="twitter:description" content="联系 DT ALEX：合作洽谈、一般联系与公开代码仓库。" />
+<meta name="description" content="联系 DT ALEX：合作洽谈与一般联系。" />
+<meta name="theme-color" content="#0C0B0D" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f2eee9'/%3E%3Ctext x='16' y='22' font-family='Helvetica,Arial' font-size='15' font-weight='700' text-anchor='middle' fill='%23111'%3EDT%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="assets/fonts/fonts.css" />
+<link rel="stylesheet" href="css/studios-unseen.css" />
+<script src="js/lang-boot.js"></script>
+</head>
+<body>
+
+<a class="skip" href="#main"><span class="t-zh">跳到主要内容</span><span class="t-en">Skip to content</span></a>
+
+
+<main id="main" class="contact">
+  <section class="contacthero" data-reveal>
+    <div class="tag"><span class="t-zh">联系</span><span class="t-en">Contact</span></div>
+    <h1 class="cbig" style="margin-top:20px"><span class="t-zh">写封信给我 —<br /><em>期待听到</em><br />你的项目</span><span class="t-en"><em>Say hello</em> —<br />I look forward<br />to hearing from you</span></h1>
+  </section>
+
+  <!-- 3D 房间：自己的作品挂在墙上，可拖拽环视（参考站 /contact/ 手法） -->
+  <section class="roomsec" id="roomsec" aria-label="Studio room">
+    <canvas id="room" class="room" aria-hidden="true"></canvas>
+    <div class="room__ctl" role="group" aria-label="展厅灯光">
+      <button type="button" class="roomtheme on" data-theme="0"><span class="t-zh">夜厅</span><span class="t-en">Night</span></button>
+      <button type="button" class="roomtheme" data-theme="1"><span class="t-zh">白盒</span><span class="t-en">White cube</span></button>
+      <button type="button" class="roomtheme" data-theme="2"><span class="t-zh">暖木</span><span class="t-en">Warm wood</span></button>
+    </div>
+    <p class="room__hint"><span class="t-zh">拖动环视展厅 · 墙上均为本人作品</span><span class="t-en">Drag to look around · all work shown is mine</span></p>
+  </section>
+
+  <!-- 参考站 /contact/ 的收束顺序：全大写小字 → 一实一描两枚胶囊 → 大号邮箱。
+       邮箱业主还没给，所以两枚胶囊是 disabled 真态而不是假 mailto——
+       形可以照抄，链接不能编。 -->
+  <section class="ccta" data-reveal>
+    <p class="ckick"><span class="t-zh">期待听到你的项目</span><span class="t-en">We look forward to hearing from you</span></p>
+    <div class="cbtns">
+      <button type="button" class="pill pill--solid" disabled>
+        <span class="t-zh">合作洽谈</span><span class="t-en">New Business</span> <span class="pill__ic" aria-hidden="true">↘</span>
+      </button>
+      <button type="button" class="pill" disabled>
+        <span class="t-zh">一般联系</span><span class="t-en">General</span> <span class="pill__ic" aria-hidden="true">↗</span>
+      </button>
+    </div>
+    <!-- 参考站这里是一行大号邮箱。邮箱还没公布，所以大号位放诚实的待公布状态，
+         而不是编一个地址出来。 -->
+    <p class="cmail"><span class="pending"><span class="t-zh">邮箱待公布</span><span class="t-en">Email coming soon</span></span></p>
+    <p class="cnote"><span class="t-zh">可先通过下方链接找到我</span><span class="t-en">Until then, reach me through the links below</span></p>
+  </section>
+
+  <section class="csocials" data-reveal>
+    <a href="https://github.com/DTALEX66" target="_blank" rel="noopener">GitHub</a>
+    <span class="pending">Instagram</span>
+    <span class="pending">Behance</span>
+    <span class="pending"><span class="t-zh">站酷</span><span class="t-en">ZCOOL</span></span>
+  </section>
+
+  <div class="wrap" style="padding-bottom:90px">
+    <p class="meta" data-reveal><span class="t-zh">现居中国 · 面向全球工作 · 2026</span><span class="t-en">Based in China · Working worldwide · 2026</span></p>
+  </div>
+</main>
+
+<footer class="foot">
+  <p class="fbrand">DT ALEX <em>Studios</em></p>
+  <p class="fmeta"><span class="t-zh">平面与视觉设计 · 个人项目</span><span class="t-en">Graphic &amp; Visual Design · Personal Projects</span></p>
+  <p class="fmeta">© 2026 DT ALEX</p>
+</footer>
+
+<script src="assets/js/vendor/three.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/en-copy.js"></script>
+<script src="js/core.js"></script>
+<script src="js/scene.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DTS, H = window.DT;
+  if (!window.DTSCENE) return;
+  var sec = document.getElementById("roomsec");
+  /* 只挂本人作品：参考占位与空位一律不进展厅；同一张封面不重复挂 */
+  var seen = {}, own = [];
+  D.all.forEach(function (it) {
+    if (!it.cover || it.truth === "placeholder") return;
+    if (seen[it.cover]) return;
+    seen[it.cover] = 1;
+    own.push(it);
+  });
+  own = own.slice(0, 6);
+  if (!own.length) return;
+
+  /* 三面墙位：正面 2 幅、左右墙各 2 幅，交替分配 */
+  var HW = 10.9, HD = 7.4, slots = [
+    { z: -HD + 0.15, x: -3.4, ry: 0 }, { z: -HD + 0.15, x: 3.4, ry: 0 },
+    { x: -HW + 0.15, z: -1.2, ry:  Math.PI / 2 }, { x: -HW + 0.15, z: 3.2, ry:  Math.PI / 2 },
+    { x:  HW - 0.15, z: -1.2, ry: -Math.PI / 2 }, { x:  HW - 0.15, z: 3.2, ry: -Math.PI / 2 }
+  ];
+  var items = own.map(function (it, i) {
+    var s = slots[i % slots.length];
+    return { src: D.M(it.cover), w: 3.5, h: 2.3, y: 1.9,
+             x: s.x || 0, z: s.z || 0, ry: s.ry || 0 };
+  });
+
+  sec.classList.add("room-on");
+  /* 面顺序：地板 / 天花 / 前墙 / 左墙 / 右墙 */
+  var THEMES = [
+    { bg: 0x0b0b0a, edge: 0x6a6157, pool: 0.5,
+      faces: [0x241f1a, 0x0d0b0a, 0x1c1916, 0x171412, 0x141110] },
+    { bg: 0xe9e7e2, edge: 0xb0aca3, pool: 0.26,
+      faces: [0xf2f2ef, 0xdedad4, 0xeceae6, 0xe6e3de, 0xe1ded8] },
+    { bg: 0x140f0b, edge: 0x8a6f4d, pool: 0.62,
+      faces: [0x2e2318, 0x120d09, 0x261d14, 0x1f1710, 0x1b1410] }
+  ];
+  try {
+    var roomHandle = DTSCENE.room({ host: sec, canvas: document.getElementById("room"),
+                                    items: items, themes: THEMES });
+    var btns = [].slice.call(sec.querySelectorAll(".roomtheme"));
+    btns.forEach(function (btn, i) {
+      btn.addEventListener("click", function () {
+        btns.forEach(function (o) { o.classList.remove("on"); });
+        btn.classList.add("on");
+        sec.setAttribute("data-theme", String(i));
+        roomHandle.setTheme(i);
+      });
+    });
+  } catch (e) {
+    sec.classList.remove("room-on");     /* 无 WebGL：整块收起，文字信息照常可读 */
+  }
+})();
+</script>
+</body>
+</html>

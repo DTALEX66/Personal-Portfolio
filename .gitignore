@@ -1,0 +1,17 @@
+# 仓库只跟踪站点本体（site-unseen/）和这份说明。
+# 同级目录不入库，各有原因：
+#   reference-imagery/  reference-pack-*/   第三方作品参考包，含署名/非商业/禁止演绎限制
+#   src-media/  web/                        原始素材与上一版站点，体积大且是派生源
+#   archive-backups/  .site-unseen-backup-*/ 阶段性备份
+#   __verify-p*/  __zoomfit-p*/             本地校验每次跑出来的临时目录
+#   *.qoder.site                            托管平台的本地绑定描述文件
+/*
+!/site-unseen/
+!/README.md
+!/.gitignore
+!/.gitattributes
+
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log

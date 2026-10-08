@@ -1,0 +1,13 @@
+# 检出时保持 LF：Windows 上的 git 默认会把 LF 换成 CRLF，
+# 换完之后工作副本和仓库里的字节就不一样了——本地校验脚本按整段文本匹配锚点，
+# 多一个 \r 就找不到，报出来的红和产品无关。
+* text=auto eol=lf
+
+*.webp binary
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text eol=lf
+*.ico binary

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Labs — DT ALEX STUDIOS</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="DT ALEX STUDIOS" />
+  <meta property="og:title" content="Labs — DT ALEX STUDIOS" />
+  <meta property="og:description" content="实验场：排版、材质、动态与三维方向的短期实验。" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Labs — DT ALEX STUDIOS" />
+  <meta name="twitter:description" content="实验场：排版、材质、动态与三维方向的短期实验。" />
+<meta name="description" content="DT ALEX STUDIOS 实验区：AI 图像、Shader、字阶、材料等视觉与技术的尝试。" />
+<meta name="theme-color" content="#0C0B0D" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f2eee9'/%3E%3Ctext x='16' y='22' font-family='Helvetica,Arial' font-size='15' font-weight='700' text-anchor='middle' fill='%23111'%3EDT%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="assets/fonts/fonts.css" />
+<link rel="stylesheet" href="css/studios-unseen.css" />
+<script src="js/lang-boot.js"></script>
+</head>
+<body>
+
+<a class="skip" href="#main"><span class="t-zh">跳到主要内容</span><span class="t-en">Skip to content</span></a>
+
+
+<main id="main">
+  <section class="sec" style="padding-top:150px" aria-label="Experiments">
+    <div class="wrap head" data-reveal>
+      <div>
+        <div class="tag"><span class="t-zh">实验 · Labs</span><span class="t-en">Labs · Experiments</span></div>
+        <h1 class="display l" style="margin-top:10px"><span class="t-zh"><em>实验</em></span><span class="t-en"><em>Experiments</em></span></h1>
+      </div>
+      <p class="meta"><span class="t-zh">一些小的视觉、技术和设计尝试。</span><span class="t-en">Visual, digital and technical experiments.</span></p>
+    </div>
+
+    <div class="labsgrid" id="labs"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p class="fbrand">DT ALEX <em>Studios</em></p>
+  <p class="fmeta"><span class="t-zh">平面与视觉设计 · 个人项目</span><span class="t-en">Graphic &amp; Visual Design · Personal Projects</span></p>
+  <p class="fmeta">© 2026 DT ALEX</p>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-label="Experiment">
+  <div class="lbtitle" id="lbTitle"></div>
+  <p class="lbcopy" id="lbCopy"></p>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/en-copy.js"></script>
+<script src="js/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DTS, H = window.DT, L = H.L;
+  var grid = document.getElementById("labs");
+  var classes = ["", "", "", "", "wide", "wide", "", "", "", "", "", ""];
+  D.experiments.forEach(function (x, i) {
+    var el = document.createElement("div");
+    /* 少了这个空格，"lab"+"wide" 会变成单个类名 labwide，
+       两张宽卡就完全拿不到 .lab 的样式（无边框无背景，名称和类型还挤成一行） */
+    el.className = "lab " + (classes[i] || "");
+    el.setAttribute("data-reveal", "");
+    var num = "Experiment #" + String(i + 1).padStart(3, "0");
+    var noteEn = (D.XEN || {})[x.slug] || "";
+    var titleEn = (D.XTEN || {})[x.slug] || "";
+    var visual;
+    if (x.src) {
+      visual = '<div class="lv">' + H.imgHtml(D.M(x.src), x.title) + "</div>";
+    } else {
+      visual = '<div class="lv gray" style="background:repeating-linear-gradient(45deg,var(--paper),var(--paper) 12px,var(--white) 12px,var(--white) 24px);color:var(--ink)">' + x.kind + "</div>";
+    }
+    el.innerHTML =
+      '<span class="tag-new">' + num + "</span>" +
+      visual +
+      '<div class="lm"><span class="n">' + L.t(x.title, titleEn) + '</span><span class="s">' + x.kind + "</span></div>";
+    el.addEventListener("click", function () {
+      document.getElementById("lbTitle").innerHTML = num + " — " + L.t(x.title, titleEn);
+      document.getElementById("lbCopy").innerHTML = L.t(x.note, noteEn);
+      document.getElementById("lb").classList.add("open");
+    });
+    grid.appendChild(el);
+  });
+  document.getElementById("lb").addEventListener("click", function () { this.classList.remove("open"); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") document.getElementById("lb").classList.remove("open"); });
+})();
+</script>
+</body>
+</html>

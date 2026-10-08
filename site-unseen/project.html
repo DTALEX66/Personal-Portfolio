@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Project — DT ALEX STUDIOS</title>
+  <meta name="description" content="案例详情：背景与问题、我做了什么、现在的状态与如果重来，配图均为设计稿或自有渲染。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="DT ALEX STUDIOS" />
+  <meta property="og:title" content="Project — DT ALEX STUDIOS" />
+  <meta property="og:description" content="案例详情：背景与问题、我做了什么、现在的状态与如果重来，配图均为设计稿或自有渲染。" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Project — DT ALEX STUDIOS" />
+  <meta name="twitter:description" content="案例详情：背景与问题、我做了什么、现在的状态与如果重来，配图均为设计稿或自有渲染。" />
+<meta name="theme-color" content="#0C0B0D" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f2eee9'/%3E%3Ctext x='16' y='22' font-family='Helvetica,Arial' font-size='15' font-weight='700' text-anchor='middle' fill='%23111'%3EDT%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="assets/fonts/fonts.css" />
+<link rel="stylesheet" href="css/studios-unseen.css" />
+<script src="js/lang-boot.js"></script>
+</head>
+<body>
+  <noscript><div class="nojs">
+    <p class="t-zh">这个作品集用脚本渲染作品清单与案例正文。禁用脚本时，可以直接从下面的链接进入各页：</p>
+    <p class="t-en">This portfolio renders its work list and case text with JavaScript. With scripts disabled, you can still open the pages directly:</p>
+    <ul>
+      <li><a href="projects.html"><span class="t-zh">全部作品</span><span class="t-en">All work</span></a></li>
+      <li><a href="project.html?id=aaos"><span class="t-zh">星环知识平台 ArcheAxis Knowledge</span><span class="t-en">ArcheAxis Knowledge</span></a></li>
+      <li><a href="project.html?id=work-lab"><span class="t-zh">工作流实验室 Workflow Lab</span><span class="t-en">Workflow Lab</span></a></li>
+      <li><a href="project.html?id=design-lab"><span class="t-zh">视觉设计实验室 Visual Design Lab</span><span class="t-en">Visual Design Lab</span></a></li>
+      <li><a href="labs.html"><span class="t-zh">实验场</span><span class="t-en">Labs</span></a></li>
+      <li><a href="about.html"><span class="t-zh">关于</span><span class="t-en">About</span></a></li>
+      <li><a href="contact.html"><span class="t-zh">联系</span><span class="t-en">Contact</span></a></li>
+    </ul>
+  </div></noscript>
+
+<a class="skip" href="#main"><span class="t-zh">跳到主要内容</span><span class="t-en">Skip to content</span></a>
+
+
+<main id="main">
+  <div id="content"></div>
+</main>
+
+<footer class="foot">
+  <p class="fbrand">DT ALEX <em>Studios</em></p>
+  <p class="fmeta"><span class="t-zh">平面与视觉设计 · 个人项目</span><span class="t-en">Graphic &amp; Visual Design · Personal Projects</span></p>
+  <p class="fmeta">© 2026 DT ALEX</p>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/en-copy.js"></script>
+<script src="js/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DTS, H = window.DT, L = H.L;
+  var id = new URLSearchParams(location.search).get("id");
+  var it = D.byId[id];
+  var box = document.getElementById("content");
+  if (!it) {
+    box.innerHTML = '<div class="notfound"><h1 class="display l">' + L.t("未找到", "Not found") + '</h1><p class="tag" style="margin-top:16px"><a href="projects.html">← ' + L.t("返回作品列表", "Back to projects") + "</a></p></div>";
+    return;
+  }
+
+  document.title = (it.personal ? (it.full || it.title) : (it.titleEn || it.title)) + " — DT ALEX STUDIOS";
+
+  /* media wall —— 统一配图处理：产品界面→桌面样机 / 品牌与版式→纸张框 / 空间与渲染→出血。
+     个人项目的框型逐条写在 data.js 的 media[].frame 上：那是"这张图是什么"的事实，
+     而图片比例推不出来（420×800 的构成拆解会被当成手机屏，960×178 的图标条会被当成宽屏）。 */
+  var CHROME = {
+    "nebula-culture-wall": "bleed",
+    "nebula-wayfinding": "paper"
+  };
+  var chrome = it.personal ? "mac" : (CHROME[it.id] || "bleed");
+
+  function frameOpen(m) {
+    var kind = m.frame || chrome;
+    if (kind === "mac") {
+      return '<div class="mi frame-mac mframe"><div class="mc">' +
+        '<div class="mc-lid"><span class="mc-cam"></span><div class="mc-screen">';
+    }
+    if (kind === "paper") return '<div class="mi frame-paper mframe"><div class="fp-in">';
+    return '<div class="mi frame-bleed mframe"><div class="fl-body">';
+  }
+  function frameClose(m, capText) {
+    /* mac 的层级是 .mi > .mc > .mc-lid > .mc-screen：先收屏幕、再收上盖，
+       机身作为 .mc 的最后一个孩子（满宽，所以视觉上比上盖宽出一圈）。 */
+    var shell = (m.frame || chrome) === "mac"
+      ? '</div></div><div class="mc-base"><span class="mc-scoop"></span></div></div>'
+      : "</div>";
+    var capHtml = capText ? '<div class="cap"><span>' + capText + "</span></div>" : "";
+    return shell + capHtml + "</div>";
+  }
+  function capOf(zh, meta) {
+    var cap = zh ? L.t(zh, D.CEN[zh] || "") : "";
+    var tag = meta ? '<span class="capmeta">' + L.t(meta, D.CEN[meta] || "") + "</span>" : "";
+    if (!cap && !tag) return "";
+    return cap + (cap && tag ? " " : "") + tag;
+  }
+
+  /* 配图必须走 H.imgHtml：它按 D.IMGDIM 把 width/height 写进 img，
+     框形现在跟画面走（不再有 aspect-ratio 兜底），没有这两个属性就会在解码前塌成 0 高。 */
+  function img(src, alt) { return H.imgHtml(src, alt || ""); }
+
+  function mediaHtml(list) {
+    if (!list || !list.length) {
+      return it.truth === "placeholder"
+        ? '<div class="mi empty-slot"><span class="t-zh">待补真实作品</span><span class="t-en">Slot awaiting real work</span></div>'
+        : "";
+    }
+    var html = "";
+    list.forEach(function (m) {
+      if (m.kind === "full") {
+        html += frameOpen(m) + img(D.M(m.src), m.cap) + frameClose(m, capOf(m.cap, m.meta));
+      } else if (m.kind === "double") {
+        /* 双栏也带 meta：这两张是"设计稿 · 示例数据"，标注不能因为排成两栏就丢掉。 */
+        var mt = m.meta || [];
+        html += '<div class="mhalf">' +
+          frameOpen(m) + img(D.M(m.src[0]), m.cap && m.cap[0]) + frameClose(m, capOf(m.cap && m.cap[0], mt[0])) +
+          frameOpen(m) + img(D.M(m.src[1]), m.cap && m.cap[1]) + frameClose(m, capOf(m.cap && m.cap[1], mt[1])) +
+          "</div>";
+      } else if (m.kind === "gallery") {
+        html += m.src.map(function (s, i) {
+          var c = m.cap && m.cap[i];
+          return frameOpen(m) + img(D.M(s), c) + frameClose(m, capOf(c));
+        }).join("");
+      }
+    });
+    return html;
+  }
+
+  /* next project */
+  var idx = D.all.indexOf(it);
+  var next = D.all[(idx + 1) % D.all.length];
+
+  var catChips = (it.category || []).map(function (c) { return "<span>" + c + "</span>"; }).join("");
+  /* 抽成具名函数：原先是四层嵌套三元，改一处就会数错括号。
+     只陈述条目自身的事实，不给空位编造项目名、客户或数据。 */
+  function flagNote(it) {
+    var note = "";
+    if (it.personal) note = L.t("个人爱好 · AI 能力展示 · " + it.status, "Hobby · AI capability · " + it.status);
+    else if (it.truth === "placeholder") note = L.t("待补真实作品 · 此位不放他人案例", "Slot awaiting real work · no third-party imagery");
+    else if (it.truth === "concept") note = L.t("Concept · 自定概念项目，非真实客户委托", "Concept · self-initiated, not a client commission");
+    if (!note) return "";
+    var css = "margin-top:14px" + (it.personal ? "" : ";color:#E0705E");
+    return '<div class="tag" style="' + css + '">' + note + "</div>";
+  }
+  var flag = flagNote(it);
+
+  /* 叙事弧 + 章节锚点 */
+  var n = it.narrative || {};
+  /* 个人项目：把界面帧按章节插进叙事之间（图文交错），不再堆成一面墙 */
+  var byCh = {}, unplaced = [];
+  (it.media || []).forEach(function (m) {
+    if (it.personal && m.ch) (byCh[m.ch] = byCh[m.ch] || []).push(m);
+    else unplaced.push(m);
+  });
+  var SPECIMEN_NOTE = '<p class="tag specimen-note">' + L.t("以下界面为 UI 设计稿／演示稿：图内文字、状态与数字均为示例内容，不代表已实现的产品能力。", "Screens shown here are UI design mockups / demo builds: their text, states and figures are sample content, not claims about shipped capability.") + "</p>";
+  var notePlaced = false;
+  var CH = [
+    { k: "why", zh: it.personal ? "为什么做" : "背景与问题", en: it.personal ? "Why I made it" : "Context & problem" },
+    { k: "how", zh: it.personal ? "怎么做的" : "我做了什么", en: it.personal ? "How it works" : "What I did" },
+    { k: "current", zh: "现在的状态", en: "Where it stands" },
+    { k: "reflect", zh: "如果重来", en: "If I did it again" }
+  ];
+  var blocks = "", chapters = "";
+  CH.forEach(function (c, i) {
+    if (!n[c.k]) return;
+    var anchor = "ch" + i;
+    chapters += '<a href="#' + anchor + '" data-ch="' + anchor + '">' + L.t(c.zh, c.en) + "</a>";
+    var group = "";
+    var items = byCh[c.k];
+    if (items && items.length) {
+      var head = "";
+      if (!notePlaced) { head = SPECIMEN_NOTE; notePlaced = true; }
+      group = '<div class="dmedia inline">' + head + mediaHtml(items) + "</div>";
+    }
+    blocks += '<div class="blk" id="' + anchor + '" data-reveal><h3>' + L.t(c.zh, c.en) + "</h3><p" +
+      (c.k === "reflect" ? ' style="font-family:var(--serif);font-style:italic"' : "") + ">" +
+      H.enOf(it, c.k) + "</p>" + group + "</div>";
+  });
+
+  /* 没有封面就不铺封面位：空态说明已经由正文的 empty-slot 和红色标注给出，
+     再撑一个 16:9 的空盒子只会像坏图。 */
+  var coverVisual = it.cover
+    ? '<div class="img">' + H.imgHtml(D.M(it.cover), it.full || it.title) + "</div>"
+    : "";
+
+  /* 标识横幅：三个个人项目有自己的标识锁定（4K 黑白稿按亮度蒙版抠的，带 alpha）。
+     详情页原来第一屏直接是一张界面截图，产品级详情页应该先给品牌锁定再给界面。
+     光晕放在父级、图形放在子级：反过来写（同一条规则里 mask + drop-shadow）时，
+     遮罩在滤镜之后生效，光晕会被自己裁掉。这里干脆不用 mask——标识本身就是白色的，
+     直接 <img> 更稳，浏览器不认 mask 也不会让图形消失。 */
+  var brandVisual = it.logo
+    ? '<section class="dbrand" data-reveal><div class="dbrand__plate">' +
+      '<span class="dbrand__glow" aria-hidden="true"></span>' +
+      '<div class="img">' + H.imgHtml(D.M(it.logo),
+        /* 必须用 pick 不能用 t：L.t() 返回的是一段成对的双语 span 标记，
+           塞进 alt 里，属性值自带引号会把 img 标签截断，
+           后半截（含 loading 那个属性）直接变成页面上的一段可见文字。
+           属性值要的是纯文本，L.pick 才是纯文本的那一个。 */
+        L.pick((it.full || it.title) + " 标识", (it.titleEn || it.title) + " logo")) + "</div>" +
+      '<div class="dbrand__txt"><span class="tag">' + L.t("项目标识", "Project identity") + "</span>" +
+      '<p class="dbrand__name">' + L.t(it.full || it.title, it.titleEn || it.title) + "</p>" +
+      '<p class="dbrand__sub">' + H.enOf(it, "one") + "</p></div>" +
+      '<span class="dbrand__sweep" aria-hidden="true"></span>' +
+      "</div></section>"
+    : "";
+
+  box.innerHTML =
+    '<section class="dhero" data-reveal>' +
+    '<div class="tag">' + L.t("项目详情", "Project Overview") + "</div>" +
+    '<div class="dcats">' + catChips + "</div>" +
+    '<h1 class="display l">' + L.t(it.full || it.title, it.titleEn || it.title) + "</h1>" +
+    /* 标题位用全称：AAOS / WORK-LAB / DESIGN-LAB 是内部代号，对外一律全称。
+       原来 H1 用短名、下面再挂一行 .tag 写全称；全称上移到标题位之后，
+       那一行就是重复，摘掉。列表与索引位同一口径（core.js 的 titleOf）。 */
+    '<p class="done">' + H.enOf(it, "one") + "</p>" +
+    flag +
+    "</section>" +
+    brandVisual +
+
+    (coverVisual ? '<section class="dcover" data-reveal>' + coverVisual + "</section>" : "") +
+
+    '<section class="dmeta" data-reveal>' +
+    '<div class="dm"><span>' + L.t("年份", "Year") + "</span><b>" + it.year + "</b></div>" +
+    '<div class="dm"><span>' + L.t("类别", "Category") + "</span><b>" + (it.category || []).join(" / ") + "</b></div>" +
+    '<div class="dm"><span>' + L.t("角色", "Role") + "</span><b>" + H.enOf(it, "role") + "</b></div>" +
+    '<div class="dm"><span>' + (it.personal ? L.t("项目", "Project") : L.t("客户", "Client")) + "</span><b>" + (it.personal ? (it.status || "Ongoing") : H.enOf(it, "client")) + "</b></div>" +
+    "</section>" +
+
+    '<section class="dbody">' +
+    '<div class="sticky"><div class="st" data-reveal><h2>' + L.t("概览", "Overview") + '</h2><p class="tag" style="line-height:1.9">' + H.enOf(it, "one") + "</p></div>" +
+    (chapters ? '<nav class="dnav" aria-label="' + L.pick("章节", "Chapters") + '">' + chapters + "</nav>" : "") +
+    "</div>" +
+    '<div class="content">' + blocks + "</div>" +
+    "</section>" +
+
+    (mediaHtml(unplaced) ? '<section class="dmedia" data-reveal>' + mediaHtml(unplaced) + "</section>" : "") +
+
+    '<a class="next" href="project.html?id=' + next.id + '" data-reveal>' +
+    '<span class="lbl">' + L.t("下一个项目", "Next project") + "</span>" +
+    '<span class="nname">' + H.titleOf(next) + " →</span>" +
+    "</a>";
+
+  /* 章节高亮：IntersectionObserver 标记当前可见章节 */
+  var links = Array.prototype.slice.call(document.querySelectorAll(".dnav a"));
+  var secs = links.map(function (a) { return document.getElementById(a.getAttribute("data-ch")); });
+  if (links.length && "IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var i = secs.indexOf(en.target);
+        links.forEach(function (a, j) { a.classList.toggle("on", j === i); });
+      });
+    }, { rootMargin: "-30% 0px -55% 0px", threshold: 0 });
+    secs.forEach(function (s) { if (s) io.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>
