@@ -146,6 +146,11 @@
     if (!zh) return en;
     return Lang.t(zh, en);
   }
+  /* 详情入口：三个自研系统的主详情是交付的完整案例页（cases/…），
+     其余案例仍走统一渲染器。写在一处，列表 / 球体 / 索引层 / 上下篇同一口径。 */
+  function detailHref(it) {
+    return it.case || ("project.html?id=" + (it.id || it.slug));
+  }
   /* 项目标题：三个自研系统对外一律用全称——AAOS 只是内部代号。
      全称在 en-copy 里有英文配对，所以走 enOf（成对 span），不能塞裸中文字符串。 */
   function titleOf(it) {
@@ -160,7 +165,7 @@
   }
 
   window.DT = { $: $, $$: $$, coverOf: coverOf, imgHtml: imgHtml, imgDim: imgDim,
-    flagLabel: flagLabel, metaHtml: metaHtml, titleOf: titleOf,
+    flagLabel: flagLabel, metaHtml: metaHtml, titleOf: titleOf, detailHref: detailHref,
     REDUCED: REDUCED, FINE: FINE, L: Lang, cap: cap, enOf: enOf, replayGate: replayGate, rollify: rollify,
     paperTilt: paperTilt };
 
@@ -483,7 +488,7 @@
       if (it.personal && !hasPersonal) cats.push("Personal");
       var cat = cats.join(" · ");
       var cover = coverOf(it);
-      return '<a class="irow" href="project.html?id=' + it.id + '"' + (cover ? ' data-prev="' + cover + '"' : "") + ">" +
+      return '<a class="irow" href="' + detailHref(it) + '"' + (cover ? ' data-prev="' + cover + '"' : "") + ">" +
         '<span class="iyear">' + it.year + "</span>" +
         '<span class="iname">' + Lang.t(it.title, it.titleEn || it.title) + "</span>" +
         '<span class="icat">' + cat + "</span></a>";

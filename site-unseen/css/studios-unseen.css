@@ -620,6 +620,9 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .dhero .dcats{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}
 .dhero .dcats span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--ink);border-radius:999px;padding:5px 12px}
 .dhero .done{font-size:15px;color:var(--gray);max-width:60ch;margin-top:20px}
+/* 完整案例页入口：贴在概览首屏里，和上面的一句话留一行距离就够，
+   不需要另起一块面板——它只是指路，不是内容。 */
+.dhero .dcase{margin-top:22px}
 
 /* 标识横幅（个人项目详情页第一屏）。深色底板 + 左边品牌锁定 + 右边一句话说明。
    光晕在父级、图形在子级：同一条规则里写 mask + drop-shadow 的话，

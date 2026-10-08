@@ -16,8 +16,16 @@ python -m http.server 4200 --bind 127.0.0.1
 | `index.html` | 入口门 + WebGL 世界 + 作品列表 + 三个自研系统 + 实验场 |
 | `projects.html` | 全部作品：3D 透视纸张画廊，无 WebGL 时退成卡片网格 |
 | `project.html?id=…` | 案例详情（十个案例共用一个渲染器，靠 `id` 取数据） |
+| `cases/index.html` | 三个自研系统的案例总览 |
+| `cases/{archeaxis,work-lab,design-lab}.html` | 三套完整产品案例页（品牌 + UI + UX + 线上物料，14 章节） |
+| `cases/brand-ui-kit.html` | 品牌与 UI 基础套件 |
+| `cases/source_ui/…` | 三套交互演示（示例数据，未接真实服务） |
 | `labs.html` | 实验场切片 |
 | `about.html` / `contact.html` | 关于 / 联系 |
+
+三个自研系统的主详情是 `cases/` 下的完整案例页，列表卡、球体、索引层、上下篇都直接指向它；
+`project.html?id=…` 保留为作品集版式的概览页，并在首屏给出进入完整案例页的入口。
+
 
 ## 结构
 
@@ -31,7 +39,12 @@ site-unseen/
   assets/js/vendor/        three.js 本地单文件（603 KB）
   assets/fonts/            两款开源替代字体（自托管 woff2）
   assets/media/            195 个素材，全部站内，不引用外部路径
+  cases/                   三套完整产品案例页 + 交互演示（42 个文件 / 2.5 MB）
+    cases/assets/          案例页配图（31 张 webp）与 Inter（含 SIL OFL 许可证）
 ```
+
+案例页的 CJK 不随站分发全量字体包：`@font-face` 走 `local()` 系统字体栈，
+拉丁体 Inter 以 woff/ttf 随站，许可证与字体同目录分发。
 
 ## 内容口径
 
@@ -63,6 +76,8 @@ site-unseen/
 
 ## 仓库范围
 
-只跟踪 `site-unseen/` 与本说明。工作目录里的参考素材包、原始工程文件、
-上一版站点和备份不入库——其中第三方参考包含署名 / 非商业 / 禁止演绎限制。
-见 `.gitignore`。
+跟踪 `site-unseen/` 全部内容与仓库根的 `README.md` / `.gitignore` / `.gitattributes`
+（`.gitignore` 是白名单式：先忽略整棵目录，再逐项放行）。工作目录里的参考素材包、
+原始工程文件、上一版站点、阶段快照与本地校验工作区都不入库——
+其中第三方参考包含署名 / 非商业 / 禁止演绎限制。检出统一用 LF（`.gitattributes`），
+避免 Windows 的换行转换把本地校验脚本的源码锚点打红。见 `.gitignore`。

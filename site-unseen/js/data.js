@@ -240,6 +240,7 @@ window.DTS = {
          放进按 16:9 排的作品列表里会比别人矮一截。 */
       cover: "aaos-hero",
       logo: "logo-aaos",
+      case: "cases/archeaxis.html",
       media: [
         /* 01 案例吸收原先三条重复的 archeaxis-* 条目：品牌识别 → 信息架构 → 产品界面 → 学习闭环
            frame 逐条标：mac = 产品界面（桌面样机），paper = 品牌/规范板（装裱板）。
@@ -284,6 +285,7 @@ window.DTS = {
       reflect: "如果重来，我会先定义「完成」的证据，再谈自动化——没有回执的自动只会放大错误。",
       cover: "work-lab-hero",
       logo: "logo-work-lab",
+      case: "cases/work-lab.html",
       media: [
         { kind: "full", src: "work-lab-01-taskpacks", cap: "任务包", meta: "设计稿 · 示例数据", ch: "why", frame: "mac" },
         { kind: "full", src: "work-lab-02-observer", cap: "Observer 只读观察", meta: "设计稿 · 示例数据", ch: "how", frame: "mac" },
@@ -306,6 +308,7 @@ window.DTS = {
       reflect: "如果重来，我会更早把「权利分层」写进数据模型——设计系统的伦理问题比效率问题更早出现。",
       cover: "design-lab-hero",
       logo: "logo-design-lab",
+      case: "cases/design-lab.html",
       media: [
         { kind: "full", src: "design-lab-01-projects", cap: "项目上下文", meta: "设计稿 · 示例数据", ch: "why", frame: "mac" },
         { kind: "full", src: "design-lab-02-brand", cap: "设计系统", meta: "设计稿 · 示例数据", ch: "how", frame: "mac" },
@@ -603,7 +606,7 @@ window.DTS = {
       client: p.full, truth: "real", one: p.one, cover: p.cover,
       /* 这个投影是逐字段列出来的：源对象上加了新字段（比如标识 logo），
          不写在这里就会被静默丢掉，页面拿到的是没有这个键的对象。 */
-      logo: p.logo,
+      logo: p.logo, case: p.case,
       media: p.media || (p.interface || []).map(function (k) { return { kind: "full", src: k, cap: "", meta: "" }; }),
       narrative: { why: p.why, how: p.how, current: p.current, reflect: p.reflect },
       personal: true, status: p.status, flag: p.flag, tags: p.tags, full: p.full
