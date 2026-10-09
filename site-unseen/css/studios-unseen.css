@@ -735,8 +735,8 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .about .alist .al h2::before{counter-increment:al;content:counter(al,decimal-leading-zero);
   margin-right:.7em;color:color-mix(in srgb,var(--gray) 62%,transparent)}
 /* 悬停：标签向右让位，条目下面那条 hairline 从左往右画出来（scaleX 是合成层） */
-.about .alist .al h2{transition:translate .45s var(--ease)}
-.about .alist .al:hover h2{translate:6px 0}
+.about .alist .al h2{transition:transform .45s var(--ease)}
+.about .alist .al:hover h2{transform:translateX(6px)}
 .about .alist .al{position:relative}
 .about .alist .al::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
   background:var(--brand);transform:scaleX(0);transform-origin:0 50%;
@@ -960,12 +960,12 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 /* 混排标版：无衬线粗体 + 衬线斜体（参考站手法，自有品牌词） */
 .lockup em{font-family:var(--serif);font-style:italic;font-weight:500;letter-spacing:-.01em;text-transform:none}
 /* 动能字标（core.js 的 kineticLockup 把 H1 切成 .lk-word > .lk）。
-   遮罩用 clip-path 而不是 overflow:hidden：后者会改行盒，
-   而 zoomfit / short-viewport 两扇闸门量的正是行盒。
+   遮罩用 clip-path 而不是 overflow:hidden：后者会把词盒变成行盒的一部分，
+   中文标题的折行位置随字体度量一起变；clip-path 只裁像素，不动排版。
    上下各外扩一点，升起时遮住、落位后不切字形。 */
 /* inline-block 默认按基线对齐，会在词盒下面留出一条下沉空隙，
    整块 H1 因此变高——vertical-align:top 把这件事关掉，
-   analyze-hero / verify-zoomfit 量到的行盒才和切分前一致。 */
+   切分前后的行盒才一致，标题不会因为你拆了 span 就自己变高。 */
 .lockup .lk-word{display:inline-block;vertical-align:top;white-space:nowrap;
   clip-path:inset(-14% -4% -18% -4%)}
 .lockup .lk{display:inline-block;transform:translateY(118%) rotate(3deg);opacity:0;
@@ -973,14 +973,14 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 .lockup.kinetic-in .lk{transform:none;opacity:1}
 /* 斜体那块不逐字切，所以让它正常换行：inline-block 里的字是可以回行的，
    而 .lk-word 的 nowrap 是为了"字母之间不许断行"——一个词被拆成
-   ALE / X 会直接改行盒，verify-zoomfit 量的就是行盒。 */
+   ALE / X 就直接改行盒，标题的折行位置跟着字体度量一起飘。 */
 .lockup .lk-word--em{white-space:normal;clip-path:inset(-18% -4% -26% -4%)}
 .lockup .lk-word--em em{display:inline-block;transform:translateY(78%) skewX(-9deg);opacity:0;
   transition:transform .86s var(--easeSpring) .3s,opacity .5s linear .3s}
 .lockup.kinetic-in .lk-word--em em{transform:none;opacity:1}
 /* 指针打光：贴片中心对齐 (0,0)，JS 直接把指针在段内的坐标写进 translate。
    颜色走 color-mix 而不是写死 rgba——brand 只有一个来源，
-   否则 audit-color-drift 会抓到一支"离令牌 6 阶以内"的野色。 */
+   抄一份近似色，令牌改了它不会跟着改。 */
 .spot{position:absolute;left:0;top:0;width:52%;padding-bottom:52%;margin:-26% 0 0 -26%;
   border-radius:50%;pointer-events:none;z-index:1;opacity:var(--spot-o,0);
   transition:opacity .55s linear;
@@ -1136,8 +1136,7 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
   gap:clamp(24px,4vw,64px);align-items:center}
 .personal.sphere-on .psplit .pnote{margin-bottom:0}
 /* 球台尺寸走自定义属性，而不是到后面再重声明一遍 height/margin-top：
-   同一属性只留一处声明，级联里就不存在"写了又被后面吃掉"的遮蔽
-   （verify-css-shadow 上一轮就是被那种写法判红的）。 */
+   同一属性只留一处声明，级联里就不存在"写了又被后面吃掉"的遮蔽。 */
 .porbit{position:relative;display:none;
   height:var(--orbit-h,clamp(380px,70vh,700px));margin-top:var(--orbit-mt,clamp(34px,6vh,64px))}
 .personal.sphere-on .psplit{--orbit-h:clamp(360px,62vh,620px);--orbit-mt:0px}
@@ -1164,8 +1163,8 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--brand) 60%,transparent);
   transition:opacity .4s linear}
 .labsgrid .lab:hover::after{opacity:1}
-.labsgrid .lab:hover .tag-new{translate:0 -2px}
-.labsgrid .lab .tag-new{transition:translate .4s var(--ease)}
+.labsgrid .lab:hover .tag-new{transform:translate(0,-2px)}
+.labsgrid .lab .tag-new{transition:transform .4s var(--ease)}
 /* 灯箱里的图：等比放进视口，不裁不拉；没图的占位条目不生成 img */
 .lb .lbimg{display:block;max-width:min(1080px,86vw);max-height:70vh;object-fit:contain;
   background:var(--white);border:var(--line)}
