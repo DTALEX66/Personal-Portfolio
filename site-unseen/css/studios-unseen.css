@@ -139,7 +139,7 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
 .gate.leave{transform:translateY(-100%)}
 .gate .letters{display:flex;gap:clamp(6px,2vw,22px)}
 .gate .letters span{
-  font-size:clamp(56px,13vw,180px);font-weight:700;line-height:1;
+  font-family:var(--headline);font-size:clamp(56px,13vw,180px);font-weight:700;line-height:1;
   text-transform:uppercase;opacity:0;transform:translateY(40px);
   transition:opacity .7s var(--ease),transform .7s var(--ease);
 }
@@ -153,7 +153,7 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
   display:flex;align-items:center;justify-content:center;gap:14px;
   transform:translateY(100%);pointer-events:none;
 }
-.mask span{font-size:clamp(30px,7vw,90px);font-weight:700;text-transform:uppercase;letter-spacing:.12em}
+.mask span{font-family:var(--headline);font-size:clamp(30px,7vw,90px);font-weight:700;text-transform:uppercase;letter-spacing:.12em}
 /* 参考站 timeline 实测：cover .6s / reveal .8s，都用 expo.inOut。
    .hold 让新页面在资源就绪前保持被遮住，避免"擦开一半还在加载"。 */
 .mask.in{animation:maskIn .6s var(--easeExpo) forwards}
@@ -287,7 +287,7 @@ img.fit{display:block;margin-inline:auto;max-width:100%;max-height:100%;width:au
   align-items:center;text-align:center;gap:22px}
 .ckick{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--gray)}
 .cbtns{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
-.cmail{font-family:var(--sans);font-size:clamp(20px,3.4vw,40px);font-weight:700;letter-spacing:-.01em}
+.cmail{font-family:var(--headline);font-size:clamp(20px,3.4vw,40px);font-weight:700;letter-spacing:-.01em}
 .pill[disabled]{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
 .pill[disabled]:hover{transform:none}
 .pill[disabled]:hover .bl{opacity:0}
@@ -543,7 +543,7 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
    原先 `grid-column:span 5; grid-column-start:8` 在浏览器里实际只落到 1 条轨道，
    文字列被压成 92px（1440 视口下）——标题三行一字、说明栏 15 字一换。 */
 .sw .swtxt{grid-column:8 / span 5;min-width:0}
-.sw .swtxt .t{font-size:clamp(24px,4vw,52px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;line-height:1}
+.sw .swtxt .t{font-family:var(--headline);font-size:clamp(24px,4vw,52px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;line-height:1}
 .sw .swtxt .one{font-size:15px;color:var(--gray);margin-top:14px;max-width:46ch}
 .sw .swmeta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:20px}
 /* 标签在上、值在下。必须写 > span：写成 `.swmeta span` 会连里面的
@@ -568,7 +568,7 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .pp:last-of-type{border-bottom:1px solid var(--invert-line)}
 .pp .ppimg{overflow:hidden}
 .pp .pptxt .k{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#A9A9A0}
-.pp .pptxt .n{font-size:clamp(26px,4vw,48px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;margin:10px 0 14px;line-height:1}
+.pp .pptxt .n{font-family:var(--headline);font-size:clamp(26px,4vw,48px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;margin:10px 0 14px;line-height:1}
 .pp .pptxt .one{font-size:15px;color:#C7C7BE;max-width:52ch}
 .pp .pptxt .flags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .pp .pptxt .flags span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;border:1px solid rgba(242,238,233,.3);border-radius:999px;padding:5px 12px;color:#DADAD2}
@@ -705,7 +705,7 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .dmedia .mi .cap{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);padding:10px 2px 0}
 .next{border-top:var(--line);margin:40px var(--pad) 0;padding:40px 0 60px;display:flex;justify-content:space-between;align-items:baseline;gap:20px}
 .next .lbl{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray)}
-.next .nname{font-size:clamp(24px,4vw,48px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em}
+.next .nname{font-family:var(--headline);font-size:clamp(24px,4vw,48px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em}
 .next:hover .nname{text-decoration:underline;text-underline-offset:8px}
 .notfound{padding:30vh var(--pad);text-align:center}
 
@@ -713,7 +713,7 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .labsgrid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;padding:0 var(--pad) 80px}
 .labsgrid .lab{grid-column:span 4;border:var(--line);background:var(--white);overflow:hidden;position:relative}
 .labsgrid .lab.wide{grid-column:span 6}
-.labsgrid .lab .lv{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--ink);color:var(--paper);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:clamp(20px,3vw,40px)}
+.labsgrid .lab .lv{font-family:var(--headline);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--ink);color:var(--paper);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:clamp(20px,3vw,40px)}
 .labsgrid .lab .lv.gray{background:#332F38;color:var(--ink)}
 
 /* 名称换行时，右侧的类型标签会挤到第二行紧贴着名字（EN 下实测 "AtlasDigital"、"MapCode"）。
@@ -731,7 +731,7 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 
 /* ---------- about ---------- */
 .abouthero{padding:170px var(--pad) 60px;max-width:1000px}
-.abouthero .aname{font-size:clamp(40px,7vw,110px);font-weight:700;text-transform:uppercase;letter-spacing:-.02em;line-height:.95}
+.abouthero .aname{font-family:var(--headline);font-size:clamp(40px,7vw,110px);font-weight:700;text-transform:uppercase;letter-spacing:-.02em;line-height:.95}
 .abouthero .aintro{font-size:clamp(18px,2.6vw,28px);line-height:1.7;margin-top:36px;max-width:26em;font-weight:400}
 .abouthero .aintro em{font-family:var(--serif);font-style:italic}
 .about .alist{padding:0 var(--pad) 40px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:0;border-top:var(--line)}
@@ -929,7 +929,7 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 /* 窄屏：编号导航收进全屏菜单，顶栏不许断字换行 */
 
 /* 待公布项：与可点链接同一排版，但不给链接交互语义 */
-.cmail .pending{font-size:clamp(20px,3.4vw,40px);font-weight:700;letter-spacing:-.01em;border-bottom:1px dashed var(--hair);padding-bottom:6px;color:var(--gray)}
+.cmail .pending{font-family:var(--headline);font-size:clamp(20px,3.4vw,40px);font-weight:700;letter-spacing:-.01em;border-bottom:1px dashed var(--hair);padding-bottom:6px;color:var(--gray)}
 .cnote{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);margin-top:-6px}
 .contact .csocials .pending{font-size:12px;letter-spacing:.16em;text-transform:uppercase;border:1px dashed var(--hair);border-radius:999px;padding:10px 20px;color:var(--gray)}
 .menu .mbottom span{color:var(--gray)}
