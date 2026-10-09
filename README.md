@@ -37,7 +37,7 @@ site-unseen/
   js/core.js               语言/动效开关、双语工具、外壳交互
   js/scene.js              WebGL 场景（首页世界、列表、球体）
   assets/js/vendor/        three.js 本地单文件（603 KB）
-  assets/fonts/            两款开源替代字体（自托管 woff2）
+  assets/fonts/            四款开源字体（自托管 woff2，SIL OFL 许可证随字体同目录）
   assets/media/            184 个素材，全部站内，不引用外部路径
   cases/                   三套完整产品案例页 + 交互演示（41 个文件 / 2.5 MB）
     cases/assets/          案例页配图（31 张 webp）与 Inter（含 SIL OFL 许可证）

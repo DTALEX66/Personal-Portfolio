@@ -729,6 +729,110 @@
     };
   }
 
+  /* ---------------- 动能字标 ----------------
+     只动首页 H1：全站字号最大、停留最久的一处，收益最高、风险面最小。
+     字母从遮罩里升起 + 逐字错峰，斜体重音最后带一点 skew 落位。 */
+  function kineticLockup() {
+    var h1 = $(".hero .lockup") || $(".lockup");
+    if (!h1 || REDUCED || h1.dataset.kinetic) return;
+    h1.dataset.kinetic = "1";
+    var frag = document.createDocumentFragment();
+    var letters = [];
+    [].slice.call(h1.childNodes).forEach(function (n) {
+      if (n.nodeType === 3) {
+        n.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part || /^\s+$/.test(part)) {
+            if (part) frag.appendChild(document.createTextNode(" "));
+            return;
+          }
+          var w = document.createElement("span");
+          w.className = "lk-word";
+          [].forEach.call(part, function (ch) {
+            var s = document.createElement("span");
+            s.className = "lk";
+            s.textContent = ch;
+            w.appendChild(s);
+            letters.push(s);
+          });
+          frag.appendChild(w);
+        });
+      } else if (n.nodeName === "BR") {
+        frag.appendChild(document.createElement("br"));
+      } else {
+        /* <em>Studios</em>：整块包一层遮罩，动效交给 CSS（它有自己的延迟） */
+        var e = document.createElement("span");
+        e.className = "lk-word lk-word--em";
+        e.appendChild(n.cloneNode(true));
+        frag.appendChild(e);
+      }
+    });
+    h1.textContent = "";
+    h1.appendChild(frag);
+    letters.forEach(function (el, i) { el.style.transitionDelay = (i * 46) + "ms"; });
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { h1.classList.add("kinetic-in"); });
+    });
+  }
+
+  /* ---------------- 磁吸圆钮 ----------------
+     写 CSS 的独立 translate 属性而不是 transform：
+     .orbbtn:hover 的 scale 在 transform 上，两者要叠加而不是互相覆盖。
+     量盒子前先清掉自己写的位移，否则中心点被自己推着走，会抖。 */
+  function magnify() {
+    if (REDUCED || !matchMedia("(pointer:fine)").matches) return;
+    var SEL = ".fab,.soundbtn,.orbbtn,.dotbtn";
+    var raf = 0, cur = null, cx = 0, cy = 0;
+    document.addEventListener("pointermove", function (e) {
+      var el = (e.target && e.target.closest) ? e.target.closest(SEL) : null;
+      if (el !== cur) {
+        if (cur) cur.style.translate = "";
+        cur = el;
+      }
+      if (!cur) return;
+      cx = e.clientX; cy = e.clientY;
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = 0;
+        if (!cur) return;
+        cur.style.translate = "";
+        var b = cur.getBoundingClientRect();
+        var dx = (cx - (b.left + b.width / 2)) / (b.width / 2);
+        var dy = (cy - (b.top + b.height / 2)) / (b.height / 2);
+        cur.style.translate = (dx * 5).toFixed(2) + "px " + (dy * 5).toFixed(2) + "px";
+      });
+    }, { passive: true });
+  }
+
+  /* ---------------- 指针打光 ----------------
+     一层预渲染的径向渐变贴片，用 translate 跟随指针。
+     不是 filter、不是逐帧重绘：暗色带上"有盏灯跟着手"这件事，
+     成本就是一个合成层的位移。 */
+  function buildSpotlight() {
+    if (REDUCED || !matchMedia("(pointer:fine)").matches) return;
+    $$(".personal,.coda").forEach(function (band) {
+      if (band.querySelector(".spot")) return;
+      var spot = document.createElement("i");
+      spot.className = "spot";
+      spot.setAttribute("aria-hidden", "true");
+      band.appendChild(spot);
+      var raf = 0, tx = 0, ty = 0;
+      band.addEventListener("pointerenter", function () { band.classList.add("on-spot"); });
+      band.addEventListener("pointerleave", function () {
+        band.classList.remove("on-spot");
+      });
+      band.addEventListener("pointermove", function (e) {
+        var b = band.getBoundingClientRect();
+        tx = e.clientX - b.left;
+        ty = e.clientY - b.top;
+        if (raf) return;
+        raf = requestAnimationFrame(function () {
+          raf = 0;
+          spot.style.translate = tx.toFixed(1) + "px " + ty.toFixed(1) + "px";
+        });
+      }, { passive: true });
+    });
+  }
+
   function boot() {
     Lang.apply();
     buildTopbar();
@@ -740,6 +844,9 @@
     setupTransitions();
     wipeify();          /* 要在 setupReveal 之前：它给媒体图补 data-reveal */
     setupReveal();
+    kineticLockup();
+    magnify();
+    buildSpotlight();
     setupTopbarState();
     setupSmoothScroll();
     rollify();          /* 页面内联脚本先于 DOMContentLoaded 跑完，这里能覆盖动态渲染的按钮 */
