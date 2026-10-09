@@ -21,6 +21,8 @@
      离底偏移 + 钮高 + 余量。页面页脚、索引层列表、菜单社交行
      都必须让开这条带，否则内容"停"在钮底下。 */
   --chrome-b:calc(var(--pad) + 53px + 18px);
+  /* 顶栏那条带的高度：18 内边距 + 53 圆钮 + 18 内边距。菜单要让开它。 */
+  --chrome-t:calc(18px + 53px + 18px);
   /* 强调色仍是参考站那支腮红粉，但在暗底上要提亮；其上文字必须用深色 */
   --brand:#E7B5A4;
   --brand-ink:#170F0C;
@@ -179,8 +181,12 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
 /* ---------- menu overlay ---------- */
 .menu{
   position:fixed;inset:0;z-index:150;background:var(--paper);
-  display:flex;flex-direction:column;justify-content:center;
-  padding:0 var(--pad);clip-path:inset(0 0 100% 0);visibility:hidden;
+  display:flex;flex-direction:column;justify-content:flex-start;
+  /* 放不下时必须有出口：fixed + justify-content:center 的溢出上下两头都滚不回来，
+     所以改成 flex-start 起排 + 可滚，居中交给 .mbottom 的 margin-top:auto。 */
+  overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  padding:calc(var(--chrome-t) + clamp(8px,2.4vh,30px)) var(--pad) var(--chrome-b);
+  clip-path:inset(0 0 100% 0);visibility:hidden;
   transition:clip-path .7s var(--easeSharp),visibility 0s .7s;
 }
 .menu.open{clip-path:inset(0 0 0% 0);visibility:visible;transition:clip-path .7s var(--easeSharp)}
@@ -189,7 +195,7 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
   padding:clamp(10px,2vh,22px) 0;border-bottom:var(--line);
   /* 参考站全屏菜单是 Saol Display 大字、约 90px、非全大写；
      原来用 5.4vw 粗体无衬线全大写，是整个 chrome 里最不像的一处。 */
-  font-family:var(--display);font-size:clamp(38px,8.4vw,92px);font-weight:400;
+  font-family:var(--display);font-size:clamp(34px,min(8.4vw,8.6vh),92px);font-weight:400;
   letter-spacing:-.02em;text-transform:none;
   transform:translateY(30px);opacity:0;transition:transform .6s var(--ease),opacity .6s;
 }
