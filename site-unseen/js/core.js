@@ -833,6 +833,80 @@
     });
   }
 
+  /* 只武装"此刻真的看得见"的标题。实测：索引层关闭时是
+     visibility:hidden + clip-path:inset(0 0 100%)，元素照样有布局矩形，
+     getClientRects() 骗人；而 IntersectionObserver 不会因为 clip-path 变了重新触发，
+     武装它就等于把一段文字判成永久不可见。
+     不能拿 opacity 当判据——[data-reveal] 自己就是 opacity:0，
+     那样一整页还没揭示的标题全被误杀（这一版就先犯过一次）。
+     visibility / display / clip-path 才是"被遮罩层收起来"的真实表达。 */
+  function actuallyVisible(el) {
+    for (var n = el; n && n !== document.documentElement; n = n.parentElement) {
+      var cs = getComputedStyle(n);
+      if (cs.display === "none" || cs.visibility === "hidden") return false;
+      if (cs.clipPath && cs.clipPath !== "none") return false;
+    }
+    return true;
+  }
+
+  /* ---------------- 全站大标题的遮罩落位 ----------------
+     按词切；词盒内部允许断行（不设 nowrap），长词在窄视口才不会顶出横向滚动。
+     隐藏态挂在 .kw-armed 上，而这个类由 JS 自己加——
+     JS 没跑起来时标题必须照常可见，不能停在 opacity:0。 */
+  function kineticHeads() {
+    if (REDUCED) return;
+    var heads = $$(".display").filter(function (el) {
+      /* 只武装"已经参与排版"的标题。藏在 display:none 容器里的
+         （索引层的 h2）量不到矩形，IntersectionObserver 永远不会触发，
+         武装它就等于把它判成永久 opacity:0。没排版的不切分，保持原样。 */
+      return !el.classList.contains("lockup") && !el.dataset.kinetic &&
+        el.getClientRects().length && actuallyVisible(el);
+    });
+    if (!heads.length) return;
+    var io2 = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add("kinetic-in");
+        io2.unobserve(en.target);
+      });
+    }, { threshold: 0, rootMargin: "0px 0px -10% 0px" });
+    heads.forEach(function (el) {
+      el.dataset.kinetic = "1";
+      var frag = document.createDocumentFragment();
+      var words = [];
+      [].slice.call(el.childNodes).forEach(function (n) {
+        if (n.nodeType === 3) {
+          n.textContent.split(/([\s\u3000]+)/).forEach(function (part) {
+            if (!part) return;
+            if (/^[\s\u3000]+$/.test(part)) {
+              frag.appendChild(document.createTextNode(part));
+              return;
+            }
+            var w = document.createElement("span");
+            w.className = "kw";
+            w.textContent = part;
+            frag.appendChild(w);
+            words.push(w);
+          });
+        } else if (n.nodeName === "BR") {
+          frag.appendChild(document.createElement("br"));
+        } else {
+          /* 成对语言 span、<em> 重音：整块包进一个词盒，内部结构一个字都不动 */
+          var w2 = document.createElement("span");
+          w2.className = "kw";
+          w2.appendChild(n.cloneNode(true));
+          frag.appendChild(w2);
+          words.push(w2);
+        }
+      });
+      el.textContent = "";
+      el.appendChild(frag);
+      el.classList.add("kw-armed");
+      words.forEach(function (w, i) { w.style.transitionDelay = Math.min(i, 8) * 55 + "ms"; });
+      io2.observe(el);
+    });
+  }
+
   function boot() {
     Lang.apply();
     buildTopbar();
@@ -845,6 +919,7 @@
     wipeify();          /* 要在 setupReveal 之前：它给媒体图补 data-reveal */
     setupReveal();
     kineticLockup();
+    kineticHeads();
     magnify();
     buildSpotlight();
     setupTopbarState();

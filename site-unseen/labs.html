@@ -44,6 +44,7 @@
 </footer>
 
 <div class="lb" id="lb" role="dialog" aria-label="Experiment">
+  <div id="lbPic"></div>
   <div class="lbtitle" id="lbTitle"></div>
   <p class="lbcopy" id="lbCopy"></p>
 </div>
@@ -77,6 +78,10 @@
       visual +
       '<div class="lm"><span class="n">' + L.t(x.title, titleEn) + '</span><span class="s">' + x.kind + "</span></div>";
     el.addEventListener("click", function () {
+      /* alt 必须是纯文本：L.t 返回的是成对 span 的标记，塞进属性里就成了可见标签 */
+      var pic = x.src ? '<img class="lbimg" src="' + D.M(x.src) + '" alt="' +
+        L.pick(x.title, titleEn) + '" />' : "";
+      document.getElementById("lbPic").innerHTML = pic;
       document.getElementById("lbTitle").innerHTML = num + " — " + L.t(x.title, titleEn);
       document.getElementById("lbCopy").innerHTML = L.t(x.note, noteEn);
       document.getElementById("lb").classList.add("open");

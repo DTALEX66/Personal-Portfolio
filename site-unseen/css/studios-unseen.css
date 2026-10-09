@@ -730,7 +730,25 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .abouthero .aintro em{font-family:var(--serif);font-style:italic}
 .about .alist{padding:0 var(--pad) 40px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:0;border-top:var(--line)}
 .about .alist .al{grid-column:span 4;padding:26px 0;border-bottom:var(--line)}
-.about .alist .al:nth-child(4),.about .alist .al:nth-child(5),.about .alist .al:nth-child(6){grid-column:span 4}
+/* 序号走计数器，不占新行、不动栅格节奏 */
+.about .alist{counter-reset:al}
+.about .alist .al h2::before{counter-increment:al;content:counter(al,decimal-leading-zero);
+  margin-right:.7em;color:color-mix(in srgb,var(--gray) 62%,transparent)}
+/* 悬停：标签向右让位，条目下面那条 hairline 从左往右画出来（scaleX 是合成层） */
+.about .alist .al h2{transition:translate .45s var(--ease)}
+.about .alist .al:hover h2{translate:6px 0}
+.about .alist .al{position:relative}
+.about .alist .al::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:var(--brand);transform:scaleX(0);transform-origin:0 50%;
+  transition:transform .55s var(--ease)}
+.about .alist .al:hover::after{transform:scaleX(1)}
+/* 首字下沉：关于页是一整篇文字，需要一个视觉重心 */
+.abouthero .aintro::first-letter{font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:3.1em;line-height:.82;float:left;margin:.05em .12em -.02em 0;color:var(--brand)}
+@media (prefers-reduced-motion:reduce){
+  .about .alist .al h2{transition:none}
+  .about .alist .al::after{transition:none}
+}
 .about .alist .al h2{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray);margin-bottom:10px}
 .about .alist .al p{font-size:15px;line-height:1.7;max-width:34ch}
 .about .acert{margin:30px var(--pad) 90px;padding:30px;border:1px solid var(--ink);display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center}
@@ -964,11 +982,12 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
    颜色走 color-mix 而不是写死 rgba——brand 只有一个来源，
    否则 audit-color-drift 会抓到一支"离令牌 6 阶以内"的野色。 */
 .spot{position:absolute;left:0;top:0;width:52%;padding-bottom:52%;margin:-26% 0 0 -26%;
-  border-radius:50%;pointer-events:none;z-index:1;opacity:0;transition:opacity .55s linear;
+  border-radius:50%;pointer-events:none;z-index:1;opacity:var(--spot-o,0);
+  transition:opacity .55s linear;
   background:radial-gradient(circle at 50% 50%,
     color-mix(in srgb,var(--brand) 17%,transparent),
     color-mix(in srgb,var(--brand) 0%,transparent) 62%)}
-.personal.on-spot .spot,.coda.on-spot .spot{opacity:1}
+.personal.on-spot .spot,.coda.on-spot .spot{--spot-o:1}
 /* 页间"镜头式"转场。MDN 写明这是 cross-document：当前页与目标页都要声明同一条规则，
    全站共用这一份 CSS，所以写在这里等于两边同时开。
    该特性不是 Baseline（只有 Chromium 系支持）：不认识 @view-transition 的浏览器
@@ -1065,6 +1084,17 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 .btn, .swcta, .ppcta{border-radius:999px;padding:.7em 1.35em;border-color:var(--ink)}
 .btn::before{border-radius:999px}
 .display em{font-family:var(--serif);font-style:italic;font-weight:500;text-transform:none;letter-spacing:-.01em}
+/* 词盒：内部允许按 overflow-wrap 断行，所以窄视口不会被长词顶出横向滚动。
+   vertical-align:top 关掉 inline-block 的基线下沉，行盒才和没切分时一致。 */
+.display .kw{display:inline-block;vertical-align:top;overflow-wrap:anywhere;
+  clip-path:inset(-20% -3% -26% -3%)}
+/* 只有 JS 挂上 .kw-armed 之后才有隐藏态：脚本没跑成时标题照常可见 */
+.display.kw-armed:not(.kinetic-in) .kw{transform:translateY(112%);opacity:0}
+.display.kw-armed .kw{transition:transform .72s var(--easeSpring),opacity .42s linear}
+@media (prefers-reduced-motion:reduce){
+  .display.kw-armed:not(.kinetic-in) .kw{transform:none;opacity:1}
+  .display.kw-armed .kw{transition:none}
+}
 
 /* 左下圆形模式按钮（参考站每页都有） */
 .fab{position:fixed;left:var(--pad);bottom:var(--pad);z-index:175;width:46px;height:46px;border-radius:50%;
@@ -1122,6 +1152,28 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 .porbit.on.is-grabbing{cursor:grabbing}
 #personalList{margin-top:clamp(40px,7vh,80px)}
 
+
+/* ---- 实验场：卡片悬停与灯箱出图 ----
+   悬停抬起用 .labsgrid .lab:hover（0,3,0）而不是 .lab:hover（0,2,0）：
+   后者与 [data-reveal].in 同特异度且写得更早，会被 transform:none 压住，
+   于是"加了 hover 但永远不动"。 */
+.labsgrid .lab:hover{transform:translateY(-6px)}
+.labsgrid .lab .lv img{transition:transform .8s var(--ease)}
+.labsgrid .lab:hover .lv img{transform:scale(1.05)}
+.labsgrid .lab::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--brand) 60%,transparent);
+  transition:opacity .4s linear}
+.labsgrid .lab:hover::after{opacity:1}
+.labsgrid .lab:hover .tag-new{translate:0 -2px}
+.labsgrid .lab .tag-new{transition:translate .4s var(--ease)}
+/* 灯箱里的图：等比放进视口，不裁不拉；没图的占位条目不生成 img */
+.lb .lbimg{display:block;max-width:min(1080px,86vw);max-height:70vh;object-fit:contain;
+  background:var(--white);border:var(--line)}
+@media (prefers-reduced-motion:reduce){
+  .labsgrid .lab:hover{transform:none}
+  .labsgrid .lab:hover .lv img{transform:none}
+  .labsgrid .lab::after,.labsgrid .lab .tag-new{transition:none}
+}
 /* 入场分级压缩到 0.2s 内：真实用户更快看到内容，也让无动画环境不依赖 JS 类 */
 .gate .gtitle{transition-delay:.06s}
 .gate .gsub{transition-delay:.10s}
