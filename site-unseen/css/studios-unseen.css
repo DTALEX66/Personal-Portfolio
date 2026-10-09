@@ -38,9 +38,9 @@
   --glass-drop:0 30px 60px -32px rgba(0,0,0,.9),0 4px 12px -6px rgba(0,0,0,.7);
   --glass-drop-hi:0 46px 84px -34px rgba(0,0,0,.95),0 6px 18px -6px rgba(0,0,0,.75);
   --sans:"Neue Montreal","Albert Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-  --headline:"Bricolage Grotesque","Neue Montreal","Albert Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-  --display:"Fraunces","Saol Display","Playfair Display","Noto Serif SC",Georgia,serif;
-  --serif:"Fraunces","Saol Display","Playfair Display","Noto Serif SC",Georgia,serif;
+  --headline:"Bricolage Grotesque","Noto Serif SC Display","Neue Montreal","Albert Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --display:"Fraunces","Saol Display","Playfair Display","Noto Serif SC Display",Georgia,serif;
+  --serif:"Fraunces","Saol Display","Playfair Display","Noto Serif SC Display",Georgia,serif;
   --pad:clamp(20px,4vw,56px);
   --ease:cubic-bezier(.22,1,.36,1);
   /* 字标落位用的过冲弹簧：收尾要有『啪』一下，不是缓动到位 */
@@ -743,7 +743,7 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
   transition:transform .55s var(--ease)}
 .about .alist .al:hover::after{transform:scaleX(1)}
 /* 首字下沉：关于页是一整篇文字，需要一个视觉重心 */
-.abouthero .aintro::first-letter{font-family:var(--serif);font-style:italic;font-weight:500;
+.abouthero .aintro::first-letter{font-family:var(--serif);font-style:italic;font-weight:300;
   font-size:3.1em;line-height:.82;float:left;margin:.05em .12em -.02em 0;color:var(--brand)}
 @media (prefers-reduced-motion:reduce){
   .about .alist .al h2{transition:none}
@@ -757,8 +757,8 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 
 /* ---------- contact ---------- */
 .contacthero{padding:170px var(--pad) 30px}
-.contacthero .cbig{font-size:clamp(40px,8vw,130px);font-weight:700;text-transform:uppercase;letter-spacing:-.02em;line-height:.9}
-.contacthero .cbig em{font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:0}
+.contacthero .cbig{font-family:var(--headline);font-size:clamp(40px,8vw,130px);font-weight:700;text-transform:uppercase;letter-spacing:-.02em;line-height:.9}
+.contacthero .cbig em{font-family:var(--serif);font-style:italic;font-weight:300;text-transform:none;letter-spacing:0}
 .contact .csocials{display:flex;flex-wrap:wrap;gap:12px;padding:0 var(--pad) 80px}
 .contact .csocials a{font-size:12px;letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--ink);border-radius:999px;padding:10px 20px;transition:background var(--durU),color var(--durU)}
 .contact .csocials a:hover{background:var(--ink);color:var(--paper)}
@@ -958,7 +958,7 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 .kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gray);margin-bottom:18px}
 
 /* 混排标版：无衬线粗体 + 衬线斜体（参考站手法，自有品牌词） */
-.lockup em{font-family:var(--serif);font-style:italic;font-weight:500;letter-spacing:-.01em;text-transform:none}
+.lockup em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:-.01em;text-transform:none}
 /* 动能字标（core.js 的 kineticLockup 把 H1 切成 .lk-word > .lk）。
    遮罩用 clip-path 而不是 overflow:hidden：后者会把词盒变成行盒的一部分，
    中文标题的折行位置随字体度量一起变；clip-path 只裁像素，不动排版。
@@ -1083,7 +1083,7 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
    ============================================================ */
 .btn, .swcta, .ppcta{border-radius:999px;padding:.7em 1.35em;border-color:var(--ink)}
 .btn::before{border-radius:999px}
-.display em{font-family:var(--serif);font-style:italic;font-weight:500;text-transform:none;letter-spacing:-.01em}
+.display em{font-family:var(--serif);font-style:italic;font-weight:300;text-transform:none;letter-spacing:-.01em}
 /* 词盒：内部允许按 overflow-wrap 断行，所以窄视口不会被长词顶出横向滚动。
    vertical-align:top 关掉 inline-block 的基线下沉，行盒才和没切分时一致。 */
 .display .kw{display:inline-block;vertical-align:top;overflow-wrap:anywhere;
@@ -1187,7 +1187,7 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 .coda__k{font-size:11px;letter-spacing:.3em;text-transform:uppercase;margin:0 0 26px;color:#8d8880}
 .coda__k em{font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:0}
 .coda__t{margin:0 0 20px}
-.coda__t em{font-family:var(--serif);font-style:italic;font-weight:500;text-transform:none}
+.coda__t em{font-family:var(--serif);font-style:italic;font-weight:300;text-transform:none}
 .coda__p{font-size:14px;line-height:1.95;color:#a9a9a0;margin:0 0 34px}
 .coda__acts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 .coda .pill{border-color:#4a463f;color:var(--invert-fg)}
