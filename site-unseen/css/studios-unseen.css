@@ -82,6 +82,9 @@ button{font-family:inherit;background:none;border:0;color:inherit;cursor:pointer
   overflow-wrap:anywhere;
 }
 .display.xl{font-size:clamp(64px,11vw,200px)}
+/* 主字标的推拉镜头：滚动进度由 core.js 写进 --dolly，这里只用在一个通道上。
+   只缩不涨；transform-origin 取中部，缩的时候四边均匀让位，不会看着往下掉。 */
+.hero .display.xl{transform:scale(var(--dolly,1));transform-origin:50% 45%}
 .display.l{font-size:clamp(44px,7vw,120px)}
 .display.m{font-size:clamp(30px,4.6vw,72px)}
 /* 极窄档（分屏 / 窄窗口 / 折叠屏）：clamp 的下限本身就会撑破容器，

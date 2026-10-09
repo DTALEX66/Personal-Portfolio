@@ -803,6 +803,30 @@
     }, { passive: true });
   }
 
+
+  /* 主字标随滚动的"推拉"：把进度写进一个自定义属性，CSS 只用在 transform:scale 上。
+     合成层通道，不动行盒；到位就停写，滚动条停住时没有任何样式写入。 */
+  function dolly() {
+    if (REDUCED) return;
+    var el = document.querySelector(".hero .display.xl");
+    if (!el) return;
+    var raf = 0, last = -1;
+    function write() {
+      raf = 0;
+      var span = Math.max(240, window.innerHeight * 0.9);
+      var p = Math.min(1, Math.max(0, (window.pageYOffset || document.documentElement.scrollTop) / span));
+      var v = 1 - 0.06 * p;
+      if (Math.abs(v - last) < 0.0005) return;
+      last = v;
+      el.style.setProperty("--dolly", v.toFixed(4));
+    }
+    window.addEventListener("scroll", function () {
+      if (raf) return;
+      raf = requestAnimationFrame(write);
+    }, { passive: true });
+    write();
+  }
+
   /* ---------------- 指针打光 ----------------
      一层预渲染的径向渐变贴片，用 translate 跟随指针。
      不是 filter、不是逐帧重绘：暗色带上"有盏灯跟着手"这件事，
@@ -921,6 +945,7 @@
     kineticLockup();
     kineticHeads();
     magnify();
+    dolly();
     buildSpotlight();
     setupTopbarState();
     setupSmoothScroll();
