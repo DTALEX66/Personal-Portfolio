@@ -28,7 +28,6 @@
     }
     return {
       get v() { return lang; },
-      is: function () { return lang === "en"; },
       set: set, apply: apply,
       /* 成对 span：用于 HTML 注入；两侧同文时只出一份，避免重复文本 */
       t: function (zh, en) {
@@ -61,7 +60,6 @@
       toggle: function () { on = !on; if (on) ensure(); return on; },
       set: function (v) { on = v; if (on) ensure(); return on; },
       click: function () { blip(660, 0.08, 0.05); },
-      hover: function () { blip(880, 0.05, 0.025); },
       enter: function () {
         blip(392, 0.35, 0.05); setTimeout(function () { blip(523, 0.3, 0.05); }, 140);
         setTimeout(function () { blip(659, 0.45, 0.05); }, 300);
@@ -129,10 +127,6 @@
     if (it.truth === "concept") return Lang.t("自定概念", "Concept");
     return it.status || "Ongoing";
   }
-  function metaHtml(it, num) {
-    var cat = (it.category || []).join(" · ");
-    return '<span class="meta"><b>' + (num != null ? "0" + (num + 1) + " — " : "") + '</b>' + (it.titleEn || it.title) + "</span>";
-  }
   /* 中文说明句 → 配对 span（查 en-copy.js 的 CEN 表） */
   function cap(zh) { return Lang.t(zh, (D.CEN || {})[zh] || ""); }
   /* 条目字段 → 配对 span（查 en-copy.js 的 EN 表：one / why / how / current / reflect / full / role / client）
@@ -151,7 +145,7 @@
   function detailHref(it) {
     return it.case || ("project.html?id=" + (it.id || it.slug));
   }
-  /* 项目标题：三个自研系统对外一律用全称——AAOS 只是内部代号。
+  /* 项目标题：三个自研系统对外一律用全称——短代号只在内部使用。
      全称在 en-copy 里有英文配对，所以走 enOf（成对 span），不能塞裸中文字符串。 */
   function titleOf(it) {
     if (it.personal && it.full) return enOf(it, "full");
@@ -165,7 +159,7 @@
   }
 
   window.DT = { $: $, $$: $$, coverOf: coverOf, imgHtml: imgHtml, imgDim: imgDim,
-    flagLabel: flagLabel, metaHtml: metaHtml, titleOf: titleOf, detailHref: detailHref,
+    flagLabel: flagLabel, titleOf: titleOf, detailHref: detailHref,
     REDUCED: REDUCED, FINE: FINE, L: Lang, cap: cap, enOf: enOf, replayGate: replayGate, rollify: rollify,
     paperTilt: paperTilt };
 
@@ -490,7 +484,7 @@
       var cover = coverOf(it);
       return '<a class="irow" href="' + detailHref(it) + '"' + (cover ? ' data-prev="' + cover + '"' : "") + ">" +
         '<span class="iyear">' + it.year + "</span>" +
-        '<span class="iname">' + Lang.t(it.title, it.titleEn || it.title) + "</span>" +
+        '<span class="iname">' + titleOf(it) + "</span>" +
         '<span class="icat">' + cat + "</span></a>";
     }).join("");
     im.innerHTML =

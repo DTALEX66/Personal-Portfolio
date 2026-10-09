@@ -356,7 +356,7 @@ canvas.stageapp{position:absolute;inset:0;width:100%;height:100%;display:block;z
   .stagecap .cap-flag,.stagehint{display:none}
   /* bottom 落到 var(--pad) 会把焦点条压在左下那颗索引五点钮上——.fab 是
      46×46、left/bottom 都是 var(--pad)、z-index 175 高于焦点条的 3，
-     812×375 截图上 "AAOS" 只剩 "OS"。所以左边让出 .fab 那一格（46 + 12 空档）。
+     375px 高的视口上实测标题尾字被整块盖住。所以左边让出 .fab 那一格（46 + 12 空档）。
      让出之后带子回到 85 ≥ 门槛 82.5，卡片 85 高完整可见，不再被兜底塞到条后面。 */
   .stagecap{left:calc(var(--pad) + 58px);bottom:var(--pad)}
 }
@@ -369,7 +369,7 @@ canvas.stageapp{position:absolute;inset:0;width:100%;height:100%;display:block;z
 }
 
 /* 320 一档（折叠屏外屏 / 最小手机）：焦点条标题换成全称之后这里最挤——
-   内宽只剩 190px，"星环知识平台 ArcheAxis Knowledge" 在 20px 下要三行，
+   内宽只剩 190px，"星环知识系统 ArcheAxis Knowledge" 在 20px 下要三行，
    加上说明的两行，盒子从底部锚点长到 206 高，把卡片下沿盖掉 6px（实测 1110px²）。
    标题降到 17px、说明让位（和 ≤520 高同一手法：窄到放不下就先保标题）。 */
 @media (max-width:380px){
@@ -1054,7 +1054,20 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 /* 深色个人项目带：球体有独立舞台，项目列表在其下方 */
 .personal{position:relative;overflow:hidden}
 .personal .wrap{position:relative;z-index:2}
+/* 这一段是"标题左 / 球右"两栏。
+   sphere() 量的是 .porbit 自己的 clientWidth/Height，列宽变了球自己就缩，
+   场景里不需要跟着改数——所以这里只动版式，不动 scene.js。
+   两栏只在 .sphere-on 时成立：没有 WebGL（或没跑 JS）时 .porbit 会整块收起，
+   这时还留着 58fr 的右栏就是一格空的死位，标题被挤在左栏里。 */
+.personal .wrap.psplit{display:block}
+.personal.sphere-on .wrap.psplit{display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);
+  gap:clamp(24px,4vw,64px);align-items:center}
+.personal.sphere-on .psplit .pnote{margin-bottom:0}
 .porbit{position:relative;display:none;height:clamp(380px,70vh,700px);margin-top:clamp(34px,6vh,64px)}
+.sphere-on .psplit .porbit{margin-top:0;height:clamp(360px,62vh,620px)}
+@media (max-width:900px){
+  .personal.sphere-on .wrap.psplit{grid-template-columns:minmax(0,1fr)}
+}
 .porbit .psphere{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
 .porbit__hint{position:absolute;left:0;right:0;bottom:8px;margin:0;text-align:center;pointer-events:none;
   font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#8d8880}

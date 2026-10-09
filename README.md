@@ -38,8 +38,8 @@ site-unseen/
   js/scene.js              WebGL 场景（首页世界、列表、球体）
   assets/js/vendor/        three.js 本地单文件（603 KB）
   assets/fonts/            两款开源替代字体（自托管 woff2）
-  assets/media/            195 个素材，全部站内，不引用外部路径
-  cases/                   三套完整产品案例页 + 交互演示（42 个文件 / 2.5 MB）
+  assets/media/            184 个素材，全部站内，不引用外部路径
+  cases/                   三套完整产品案例页 + 交互演示（41 个文件 / 2.5 MB）
     cases/assets/          案例页配图（31 张 webp）与 Inter（含 SIL OFL 许可证）
 ```
 
@@ -48,7 +48,7 @@ site-unseen/
 
 ## 内容口径
 
-- **三个自研系统**是真实产出（Ongoing）：星环知识平台 ArcheAxis Knowledge、
+- **三个自研系统**是真实产出（Ongoing）：星环知识系统 ArcheAxis Knowledge、
   工作流实验室 Workflow Lab、视觉设计实验室 Visual Design Lab。
 - **八个概念案例**标为「自定概念 / Concept」——是自定的概念练习，不是客户交付。
 - **作品位**在没有真实作品时保留空态并写明「待补真实作品」，不用占位图冒充。

@@ -24,7 +24,7 @@
     <p class="t-en">This portfolio renders its work list and case text with JavaScript. With scripts disabled, you can still open the pages directly:</p>
     <ul>
       <li><a href="projects.html"><span class="t-zh">全部作品</span><span class="t-en">All work</span></a></li>
-      <li><a href="cases/archeaxis.html"><span class="t-zh">星环知识平台 ArcheAxis Knowledge</span><span class="t-en">ArcheAxis Knowledge</span></a></li>
+      <li><a href="cases/archeaxis.html"><span class="t-zh">星环知识系统 ArcheAxis Knowledge</span><span class="t-en">ArcheAxis Knowledge</span></a></li>
       <li><a href="cases/work-lab.html"><span class="t-zh">工作流实验室 Workflow Lab</span><span class="t-en">Workflow Lab</span></a></li>
       <li><a href="cases/design-lab.html"><span class="t-zh">视觉设计实验室 Visual Design Lab</span><span class="t-en">Visual Design Lab</span></a></li>
       <li><a href="labs.html"><span class="t-zh">实验场</span><span class="t-en">Labs</span></a></li>
@@ -211,7 +211,7 @@
     '<div class="tag">' + L.t("项目详情", "Project Overview") + "</div>" +
     '<div class="dcats">' + catChips + "</div>" +
     '<h1 class="display l">' + L.t(it.full || it.title, it.titleEn || it.title) + "</h1>" +
-    /* 标题位用全称：AAOS / WORK-LAB / DESIGN-LAB 是内部代号，对外一律全称。
+    /* 标题位用全称：三个自研系统的短代号只在内部使用，对外一律全称。
        原来 H1 用短名、下面再挂一行 .tag 写全称；全称上移到标题位之后，
        那一行就是重复，摘掉。列表与索引位同一口径（core.js 的 titleOf）。 */
     '<p class="done">' + H.enOf(it, "one") + "</p>" +
