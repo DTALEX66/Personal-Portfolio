@@ -39,6 +39,25 @@
                inset 0 -1px 0 rgba(255,255,255,.06);
   --glass-drop:0 30px 60px -32px rgba(0,0,0,.9),0 4px 12px -6px rgba(0,0,0,.7);
   --glass-drop-hi:0 46px 84px -34px rgba(0,0,0,.95),0 6px 18px -6px rgba(0,0,0,.75);
+  /* 按钮的玻璃分两档，判据是"这颗按钮身上的字是什么颜色"，不是它像不像主按钮：
+     暗档给亮字控件（描边胶囊、筛选条、语言开关外壳、展厅切换），
+     亮档给深字控件（实心胶囊、左下索引钮、右下声音钮、筛选选中态）。
+     合成到一处的实测：亮档 rgba(242,238,233,.86) 压在深面板上混出约 rgb(206)，
+     深字 #0C0B0D 在它上面 ~12:1；暗档混出约 rgb(18)，亮字在它上面 ~15:1。
+     命名不接上面 --glass-edge / --glass-drop 那一族——那两个是"配图位"的
+     box-shadow 令牌，把它们改成颜色会让 .plist .pcard:hover 的阴影整条失效。 */
+  --gbtn-veil:linear-gradient(rgba(255,255,255,.24),rgba(255,255,255,.04) 52%,rgba(255,255,255,.10));
+  --gbtn-body:rgba(24,22,27,.55);
+  --gbtn-body-hi:rgba(31,28,35,.80);
+  --gbtn-hair:rgba(255,255,255,.26);
+  --gbtn-hair-hi:rgba(255,255,255,.42);
+  --gbtn-solid-hi:rgba(255,255,255,.95);
+  --gbtn-hi:linear-gradient(rgba(255,255,255,.44),rgba(255,255,255,.13) 55%,rgba(255,255,255,.26));
+  --gbtn-solid:rgba(242,238,233,.86);
+  --gbtn-inset:inset 0 1px 0 rgba(255,255,255,.40),inset 0 -1px 0 rgba(255,255,255,.06);
+  --gbtn-ring:inset 0 0 0 1px rgba(255,255,255,.26);
+  --gbtn-lift:0 10px 26px -12px rgba(0,0,0,.72),0 2px 6px -3px rgba(0,0,0,.6);
+  --gbtn-blur:blur(16px) saturate(170%);
   --sans:"Neue Montreal","Albert Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   --headline:"Bricolage Grotesque","Noto Serif SC Display","Neue Montreal","Albert Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   --display:"Fraunces","Saol Display","Playfair Display","Noto Serif SC Display",Georgia,serif;
@@ -51,6 +70,11 @@
   --easeExpo:cubic-bezier(.87,0,.13,1);
   --easeSharp:cubic-bezier(.7,0,.3,1);
   --durU:.25s; --durS:.6s;
+}
+/* 不支持背景模糊的浏览器：玻璃不能退化成"一块没底色的字"。
+   两档都改成接近不透明，靠高光与内阴影撑住厚度——观感一致，只是不"透"。 */
+@supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){
+  :root{--gbtn-body:rgba(20,18,23,.94);--gbtn-solid:rgba(242,238,233,.97)}
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -182,8 +206,14 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
 .curring.label{background:var(--ink);color:var(--paper);width:62px;height:62px;border-radius:50%}
 
 /* ---------- menu overlay ---------- */
+/* 全屏层做成液态玻璃的前提是"身后那一帧是静止的"：场景在 overlay 打开时停更
+   （见 scene.js 的 idle()），所以这里可以放心用满屏模糊——背景不失效合成器就不重算，
+   付一次的钱而不是每帧的钱。若哪天停更被拿掉，这两块的模糊要一起撤掉。 */
 .menu{
-  position:fixed;inset:0;z-index:150;background:var(--paper);
+  position:fixed;inset:0;z-index:150;
+  background-image:var(--gbtn-veil);background-color:rgba(12,11,13,.66);
+  -webkit-backdrop-filter:blur(30px) saturate(160%);backdrop-filter:blur(30px) saturate(160%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16);
   display:flex;flex-direction:column;justify-content:flex-start;
   /* 放不下时必须有出口：fixed + justify-content:center 的溢出上下两头都滚不回来，
      所以改成 flex-start 起排 + 可滚，居中交给 .mbottom 的 margin-top:auto。 */
@@ -194,6 +224,7 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
 }
 .menu.open{clip-path:inset(0 0 0% 0);visibility:visible;transition:clip-path .7s var(--easeSharp)}
 .menu .mrow{
+  position:relative;
   display:flex;align-items:baseline;gap:clamp(14px,3vw,40px);
   padding:clamp(10px,2vh,22px) 0;border-bottom:var(--line);
   /* 参考站全屏菜单是 Saol Display 大字、约 90px、非全大写；
@@ -202,6 +233,17 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
   letter-spacing:-.02em;text-transform:none;
   transform:translateY(30px);opacity:0;transition:transform .6s var(--ease),opacity .6s;
 }
+/* 悬停/聚焦时行后长出一枚玻璃胶囊：只动 transform 与 opacity，
+   用站里那支过冲弹簧，让"浮起来"这一下有弹性而不是硬邦邦地刷一块背景。
+   z-index:-1 让它排在菜单底色之上、大字之下——不必给行本身加背景，
+   也就不会把 .mrow 变成层叠上下文而干扰 .sub 的定位。 */
+.menu .mrow::before{content:"";position:absolute;z-index:-1;
+  left:-20px;right:-20px;top:50%;height:1.3em;border-radius:999px;
+  background-image:var(--gbtn-veil);background-color:rgba(255,255,255,.07);
+  box-shadow:var(--gbtn-inset),inset 0 0 0 1px rgba(255,255,255,.10);
+  transform:translateY(-50%) scaleX(.9);opacity:0;pointer-events:none;
+  transition:transform .5s var(--easeSpring),opacity .3s var(--ease)}
+.menu .mrow:hover::before,.menu .mrow:focus-within::before{transform:translateY(-50%) scaleX(1);opacity:1}
 .menu.open .mrow{transform:none;opacity:1}
 .menu .mrow .num{font-size:12px;letter-spacing:.2em;color:var(--gray);font-weight:500}
 .menu .mrow .sub{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);margin-left:auto}
@@ -219,7 +261,10 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
 
 /* ---------- index mode ---------- */
 .indexmode{
-  position:fixed;inset:0;z-index:170;background:var(--paper);
+  position:fixed;inset:0;z-index:170;
+  background-image:var(--gbtn-veil);background-color:rgba(12,11,13,.66);
+  -webkit-backdrop-filter:blur(30px) saturate(160%);backdrop-filter:blur(30px) saturate(160%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16);
   clip-path:inset(0 0 100% 0);visibility:hidden;overflow-y:auto;
   transition:clip-path .6s var(--easeSharp),visibility 0s .6s;
 }
@@ -477,20 +522,35 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .hero .hwords{position:relative;z-index:5;max-width:1200px}   /* 标题永远压住 WORLD 浮层（浮层最高 3） */
 .hero .hsub{margin:26px 0 8px;font-size:13px;letter-spacing:.3em;text-transform:uppercase}
 .hero .htags{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;position:relative;z-index:2}
-.hero .htag{font-size:12px;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--ink);padding:8px 16px;border-radius:999px}
+/* 首屏那排 GRAPHIC/BRAND/3D/MOTION/DIGITAL 是全站最显眼的胶囊群，漏了它们
+   这排就还是描边框。它们永远压在每帧都在动的 WebGL 画布上，所以只拿玻璃的
+   "画法"（顶部高光 + 内三层 + 发丝边 + 落影），不拿模糊：实测把模糊压在动着的
+   画布上稳定掉 1.3fps（开 26.2 / 关 27.5，五轮分布不重叠，不是噪声），
+   那等于变相的每帧滤镜，站规禁的正是这个。下方几颗常驻画布的控件同理。 */
+.hero .htag{font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--gbtn-hair);padding:8px 16px;border-radius:999px;
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
 .hero .hcta{position:relative;z-index:2;margin-top:44px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
 .hero .hcta a{font-size:13px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--ink);padding-bottom:6px}
 .hero .hcta .hint{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray)}
 /* 暗底场上的实心胶囊就是默认的 .pill--solid（亮底深字），不用再覆盖颜色；
-   这里只补一条压在深场上的投影。hover 交回默认的强调色。
+   这里只把阴影换成玻璃那一套（内高光 + 落影），深场上要看得见厚度。
+   原来这条写的是单条 flat 投影，特异度 (0,0,2,0) 比 .pill--solid 高，
+   保留它就会把玻璃的内高光整条按掉——所以换成同一批令牌，而不是各写一份。
    描边揭示条也交回默认 .pill--solid .bl{background:var(--paper)}——
    胶囊现在是亮底，条必须是页面底那种深色才看得见。 */
-.hero .pill--solid,.gate .pill--solid{box-shadow:0 12px 34px rgba(0,0,0,.5)}
+.hero .pill--solid,.gate .pill--solid{box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
 /* 底部居中描边跑马灯胶囊：三份重复文案横向平移，只动 transform */
 .hero__marquee{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);
   z-index:2;display:block;max-width:min(78vw,420px);overflow:hidden;
   border:1px solid rgba(242,238,233,.34);border-radius:999px;padding:13px 22px;background:rgba(12,11,13,.5)}
 .hero__marquee .mq{display:flex;width:max-content;animation:mqroll 16s linear infinite}
+/* 全屏玻璃层开着时把它停在手上的位置：满屏 backdrop-filter 只要身后有任何东西在动，
+   就得每帧重新模糊一次。实测同一台机器上，没停帧时开/关模糊的帧间隔中位是
+   33.40ms vs 16.70ms（约 30fps vs 60fps），停帧之后两者都是 16.70ms（差 0.00ms）。
+   用 animation-play-state 而不是 animation:none——停在当前位置，关掉层再从那里继续走。 */
+body.overlay-open .hero__marquee .mq{animation-play-state:paused}
 /* 只给三份副本本身设间距；内层 t-zh/t-en 若也吃到 padding-right，
    一份文案就会变成两倍间距，无缝循环就断了。 */
 .hero__marquee .mq > span{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);
@@ -562,7 +622,16 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 /* 和上面 .swtxt 同一个坑：`grid-column:span 5` 再单独写 grid-column-start，
    浏览器按隐式放置只给 1 条轨道，flip 行的标题会被压成一列一字。 */
 .switem.flip .swtxt{grid-column:1 / span 5;grid-row:1;min-width:0}
-.sw .swcta{display:inline-block;margin-top:22px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--ink);padding-bottom:5px}
+/* 「查看项目 →」这类 CTA 从"下划线文字"升成玻璃胶囊：它已经是 .btn/.swcta/.ppcta
+   共享的 999px + 内距（见下方胶囊化那条），只差一层可以看见的厚度。
+   字是亮字，所以走暗档；下划线换成整圈发丝边，内距补齐成对称，
+   否则底部 5px 配四周 .7em 会让胶囊上下不对称。 */
+.sw .swcta{display:inline-flex;align-items:center;gap:.5em;margin-top:22px;font-size:12px;
+  letter-spacing:.18em;text-transform:uppercase;font-weight:600;
+  border:1px solid var(--gbtn-hair);padding:.7em 1.35em;
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift);
+  -webkit-backdrop-filter:var(--gbtn-blur);backdrop-filter:var(--gbtn-blur)}
 
 /* ---------- personal projects dark ---------- */
 .personal{background:var(--invert-bg);color:var(--invert-fg);margin-top:clamp(60px,10vh,120px)}
@@ -575,21 +644,30 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .pp .pptxt .one{font-size:15px;color:#C7C7BE;max-width:52ch}
 .pp .pptxt .flags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .pp .pptxt .flags span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;border:1px solid rgba(242,238,233,.3);border-radius:999px;padding:5px 12px;color:#DADAD2}
-.pp .ppcta{display:inline-block;margin-top:22px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--invert-fg);border-bottom:1px solid var(--invert-fg);padding-bottom:5px}
+.pp .ppcta{display:inline-flex;align-items:center;gap:.5em;margin-top:22px;font-size:12px;
+  letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--invert-fg);
+  border:1px solid var(--gbtn-hair);padding:.7em 1.35em;
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
 .pp:nth-child(even) .ppimg{order:2}
 
 /* ---------- projects page: filter + carousel ---------- */
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:40px}
+/* 筛选条：常态（--gray 亮字）走暗档，选中态（--paper 深字）走亮档——
+   分档判据是字色，不是"选中=更响"。原来常态完全没有底色，是一排浮着的字。 */
 .filters button{
   font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);
-  border:1px solid transparent;padding:8px 16px;border-radius:999px;
+  border:1px solid var(--gbtn-hair);padding:8px 16px;border-radius:999px;
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset);
   /* 点名过渡的属性：transition:all 会连尺寸类属性一起接走，
      以后谁加一条改 padding/width 的状态就静默变成每帧重排。
      这里真正随状态变的只有颜色三件。 */
   transition:color var(--durU),background-color var(--durU),border-color var(--durU);
 }
 .filters button:hover{color:var(--ink)}
-.filters button.on{color:var(--paper)}
+.filters button.on{background-image:var(--gbtn-hi);background-color:var(--gbtn-solid);
+  color:var(--paper);box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
 .filters[hidden]{display:none}
 .pfilter{text-align:center;margin:34px 0 0}
 .fbtn .pill__ic{transition:transform var(--durU) var(--ease)}
@@ -666,6 +744,8 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
   background:linear-gradient(90deg,rgba(242,238,233,0) 0%,rgba(242,238,233,.09) 45%,
     rgba(242,238,233,.15) 52%,rgba(242,238,233,0) 100%);
   animation:sheen 7.5s var(--ease) infinite}
+/* 同理：这条扫光也是常驻无限动画，玻璃层开着时必须停住，否则满屏模糊每帧重算。 */
+body.overlay-open .dbrand__sweep{animation-play-state:paused}
 @keyframes sheen{
   0%,4%{opacity:0;transform:translateX(0) rotate(14deg)}
   12%{opacity:.95}
@@ -755,8 +835,13 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .lab .tag-new{position:absolute;top:12px;left:12px;background:var(--paper);color:var(--ink);font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px}
 
 /* lightbox */
-.lb{position:fixed;inset:0;z-index:190;background:rgba(8,8,8,.92);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;opacity:0;visibility:hidden;transition:opacity .3s}
-.lb.open{opacity:1;visibility:visible}
+/* lightbox：一整块压暗 + 模糊的玻璃幕，身后页面停着不动时才付一次合成的钱 */
+.lb{position:fixed;inset:0;z-index:190;
+  background-image:var(--gbtn-veil);background-color:rgba(8,8,8,.78);
+  -webkit-backdrop-filter:blur(26px) saturate(150%);backdrop-filter:blur(26px) saturate(150%);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+  opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
+.lb.open{opacity:1;visibility:visible;transition:opacity .3s}
 .lb .lbtitle{color:var(--paper);font-size:13px;letter-spacing:.2em;text-transform:uppercase}
 .lb .lbcopy{color:#C7C7BE;font-size:14px;max-width:52ch;text-align:center}
 
@@ -797,8 +882,18 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .contacthero .cbig{font-family:var(--headline);font-size:clamp(40px,8vw,130px);font-weight:700;text-transform:uppercase;letter-spacing:-.02em;line-height:.9}
 .contacthero .cbig em{font-family:var(--serif);font-style:italic;font-weight:300;text-transform:none;letter-spacing:0}
 .contact .csocials{display:flex;flex-wrap:wrap;gap:12px;padding:0 var(--pad) 80px}
-.contact .csocials a{font-size:12px;letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--ink);border-radius:999px;padding:10px 20px;transition:background var(--durU),color var(--durU)}
-.contact .csocials a:hover{background:var(--ink);color:var(--paper)}
+/* 社交胶囊也是按钮：常态暗档玻璃（亮字），悬停换亮档（深字）。
+   悬停用 background-color 长写，简写会把高光层一起抹掉。
+   下面那条 .pending（虚线、灰字）是"还没有账号"的诚实空态，故意不上玻璃——
+   上了玻璃它就冒充一个能点的按钮。 */
+.contact .csocials a{font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  border:1px solid var(--gbtn-hair);border-radius:999px;padding:10px 20px;
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift);
+  -webkit-backdrop-filter:var(--gbtn-blur);backdrop-filter:var(--gbtn-blur);
+  transition:color var(--durU),background-color var(--durU),border-color var(--durU),transform var(--durU) var(--ease)}
+.contact .csocials a:hover{background-color:var(--gbtn-solid);border-color:var(--gbtn-hair-hi);color:var(--paper)}
+.contact .csocials a:active{transform:scale(.965)}
 
 /* ---------- footer ---------- */
 .foot{border-top:var(--line);padding:40px var(--pad) var(--chrome-b);display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:baseline}
@@ -925,11 +1020,18 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 .t-en{display:none}
 [data-lang="en"] .t-en{display:revert}
 [data-lang="en"] .t-zh{display:none}
-.langsw{display:inline-flex;align-items:stretch;border:var(--line);background:var(--paper);height:26px}
-.langsw button{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);padding:0 9px;line-height:26px;transition:color var(--durU),background var(--durU)}
-.langsw button+button{border-left:var(--line)}
+/* 中/EN 语言开关：原本是方角分段控件，苹果的做法是一枚玻璃胶囊里嵌一块亮块。
+   不用 overflow:hidden 裁内层——那会把 button:focus-visible 的描边一起裁掉，
+   等于用无障碍换形状；改成外壳与亮块各自圆角到胶囊，本来就方不出来了。
+   它常驻顶栏、压在动着的画布上，所以不模糊。 */
+.langsw{display:inline-flex;align-items:stretch;height:26px;
+  border:1px solid var(--gbtn-hair);border-radius:999px;
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
+.langsw button{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);padding:0 9px;line-height:26px;border-radius:999px;transition:color var(--durU),background var(--durU)}
+.langsw button+button{border-left:1px solid var(--gbtn-hair)}
 .langsw button:hover{color:var(--ink)}
-.langsw button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.langsw button[aria-pressed="true"]{background-image:var(--gbtn-hi);background-color:var(--gbtn-solid);color:var(--paper)}
 .langsw button[aria-pressed="true"]:hover{color:var(--paper)}
 
 /* ============================================================
@@ -1038,12 +1140,36 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 @keyframes vtIn{from{opacity:0;transform:translateY(22px) scale(.99)}}
 
 /* 胶囊按钮：填充 / 描边两种 */
-.pill{display:inline-flex;align-items:center;gap:.5em;border:1px solid var(--ink);border-radius:999px;
-  padding:.72em 1.35em;font-size:13px;letter-spacing:.04em;background:transparent;color:var(--ink);
+.pill{display:inline-flex;align-items:center;gap:.5em;border:1px solid var(--gbtn-hair);border-radius:999px;
+  padding:.72em 1.35em;font-size:13px;letter-spacing:.04em;
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);color:var(--ink);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift);
   transition:transform var(--durU) var(--ease),background-color var(--durU),color var(--durU)}
-.pill:hover{transform:translateY(-2px)}
-.pill--solid{background:var(--ink);color:var(--paper)}
-.pill--solid:hover{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+/* 模糊是" opt-in "而不是"默认开、动画处再撤"：实测把 backdrop-filter 压在每帧都在动的
+   画布上稳定掉 1.3fps（开 26.2 / 关 27.5，五轮分布不重叠，不是噪声），而默认开再撤
+   那种写法会留下一批"写了等于没写"的遮蔽。所以基态一律不模糊，只有确定身后静止的
+   位置（见 .coda .pill / .sw .swcta）才自己把模糊加上。 */
+/* 抬起 + 玻璃变厚：hover 同时改 background-color，但亮档（.pill--solid）那条
+   :hover 必须写在它后面——同为 (0,0,2,0) 后者胜，否则悬停实心胶囊会被这里
+   按成暗底深字。 */
+.pill:hover{transform:translateY(-2px);background-color:var(--gbtn-body-hi)}
+/* 实心档是"亮玻璃"：它身上的字是 --paper（深字），刷暗档就是深字压暗底。
+   属性必须一次写全，不能只补背景让 .pill 供其余——.stagecap 那颗 .cap-go
+   同时带 pill 与 pill--solid 两个类，漏一件就被暗档按回去，
+   实测混出 rgb(22,20,25)、深字对比度 1.09。 */
+.pill--solid{background-image:var(--gbtn-hi);background-color:var(--gbtn-solid);
+  border-color:var(--gbtn-hair-hi);color:var(--paper);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
+/* 悬停仍然要"更亮"而不是塌成一块平色：这里不能用 background 简写，
+   那会把 --gbtn-hi 的高光层一起抹掉。
+   这条必须排在 .pill:hover 之后——同为 (0,0,2,0)，后者胜，
+   否则悬停实心胶囊会被 .pill:hover 的暗档背景按成深字压暗底。 */
+.pill--solid:hover{background-color:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+/* 玻璃要按得下去：所有玻璃控件共用一条按压曲线，只动 transform。
+   一律带 :not([disabled])，否则会把上面 .pill[disabled]{transform:none} 按成死声明。 */
+.pill:active:not([disabled]),.orbbtn:active,.filters button:active,
+.langsw button:active,.roomtheme:active{transform:scale(.965)}
+.dotbtn:active,.soundbtn:active{transform:scale(.94)}
 .pill__ic{font-size:.95em;line-height:1}
 
 /* WebGL 画布内的作品面片用 MeshBasicMaterial，颜色不受光照影响；
@@ -1067,11 +1193,17 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 /* 圆形 ·· 菜单按钮：参考站顶栏右侧是 53×53 实心圆 + 反相点。
    暗色主题下顶栏压在深场上，圆得用 --ink 亮底 + 页面底色的点；
    全屏菜单/索引层打开后底就是 --paper，圆改成描边空心，状态差仍看得出来。 */
-.dotbtn{width:53px;height:53px;border-radius:50%;border:1px solid var(--ink);background:var(--ink);
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform var(--durU) var(--ease),background-color var(--durU),border-color var(--durU)}
+/* 左下索引钮：常驻 chrome，永远压在动着的画布上 → 亮玻璃但不模糊（理由见 .hero .htag）。
+   字与点是 --paper（深字），所以走亮档；描边从 --ink 降成发丝白，厚度交给内高光。 */
+.dotbtn{width:53px;height:53px;border-radius:50%;border:1px solid var(--gbtn-hair-hi);
+  background-image:var(--gbtn-hi);background-color:var(--gbtn-solid);
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift);
+  transition:transform var(--durU) var(--ease),background-color var(--durU),border-color var(--durU)}
 .dotbtn i{width:5px;height:5px;border-radius:50%;background:var(--paper);display:block}
-.dotbtn:hover{transform:scale(1.06)}
-body.overlay-open .dotbtn{background:transparent;border-color:var(--hair)}
+.dotbtn:hover{transform:scale(1.06);background-color:var(--gbtn-solid-hi)}
+/* 索引层打开后钮要退成"看得穿"：背景简写连同高光一起清掉，只留发丝边。 */
+body.overlay-open .dotbtn{background:transparent;border-color:var(--hair);box-shadow:var(--gbtn-ring)}
 body.overlay-open .dotbtn i{background:var(--ink)}
 /* 打开后必须换成关闭态：两个点看不出"再点会关" */
 .dotbtn[aria-expanded="true"] i{display:none}
@@ -1135,18 +1267,25 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 
 /* 左下圆形模式按钮（参考站每页都有） */
 .fab{position:fixed;left:var(--pad);bottom:var(--pad);z-index:175;width:46px;height:46px;border-radius:50%;
-  background:var(--ink);color:var(--paper);border:0;display:inline-flex;align-items:center;justify-content:center;gap:3px;
+  background-image:var(--gbtn-hi);background-color:var(--gbtn-solid);color:var(--paper);border:0;
+  box-shadow:var(--gbtn-inset),var(--gbtn-ring),var(--gbtn-lift);
+  display:inline-flex;align-items:center;justify-content:center;gap:3px;
   transition:transform var(--durU) var(--ease),background-color var(--durU)}
 .fab i{width:4px;height:4px;border-radius:50%;background:currentColor;display:block;opacity:.85}
-.fab:hover{transform:scale(1.07)}
+.fab:hover{transform:scale(1.07);background-color:var(--gbtn-solid-hi)}
+.fab:active{transform:scale(.94)}
 .fab[hidden]{display:none}
 
 /* 右下圆形声音开关。放右下而不是左下，因为左下已经被索引圆钮占了，
    同角叠放会互相点不到。 */
+/* 右下声音钮：和索引钮同一档（亮玻璃、深字、不模糊）。它本来 border:0，
+   发丝边用 inset 环画出来——加真 border 会吃掉 1px 内容盒，圆形里的波形会偏。 */
 .soundbtn{position:fixed;right:var(--pad);bottom:var(--pad);z-index:175;width:53px;height:53px;border-radius:50%;
-  background:var(--ink);color:var(--paper);border:0;display:inline-flex;align-items:center;justify-content:center;
+  background-image:var(--gbtn-hi);background-color:var(--gbtn-solid);color:var(--paper);border:0;
+  box-shadow:var(--gbtn-inset),var(--gbtn-ring),var(--gbtn-lift);
+  display:inline-flex;align-items:center;justify-content:center;
   transition:transform var(--durU) var(--ease),background-color var(--durU)}
-.soundbtn:hover{transform:scale(1.07)}
+.soundbtn:hover{transform:scale(1.07);background-color:var(--gbtn-solid-hi)}
 .soundbtn .sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
   clip-path:inset(50%);white-space:nowrap;border:0}
 /* 三条杠用同一个元素的三层背景画出来，只动 scaleY：
@@ -1227,9 +1366,17 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 .coda__t em{font-family:var(--serif);font-style:italic;font-weight:300;text-transform:none}
 .coda__p{font-size:14px;line-height:1.95;color:#a9a9a0;margin:0 0 34px}
 .coda__acts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-.coda .pill{border-color:#4a463f;color:var(--invert-fg)}
-.coda .pill--solid{background:var(--invert-fg);border-color:var(--invert-fg);color:var(--invert-bg)}
-.coda .pill--solid:hover{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+/* 结束页没有画布，身后是静止的暗面——这里是全站少数几个"模糊真的划算"的位置，
+   所以由它自己把模糊加上（基态 .pill 不开，见上面那条 opt-in 说明）。 */
+.coda .pill{border-color:var(--gbtn-hair);color:var(--invert-fg);
+  -webkit-backdrop-filter:var(--gbtn-blur);backdrop-filter:var(--gbtn-blur)}
+/* 结束页的实心胶囊同样是亮玻璃档：--invert-fg(#F2EEE9) 就是 --gbtn-solid 的实色，
+   所以这里只把"深字"那半留给 --invert-bg（结束页底不是页面底）。
+   用 background-color 长写，高光层由 .pill--solid 供——简写会把整层背景抹掉。 */
+.coda .pill--solid{background-image:var(--gbtn-hi);background-color:var(--gbtn-solid);
+  border-color:var(--gbtn-hair-hi);color:var(--invert-bg);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
+.coda .pill--solid:hover{background-color:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
 .coda__hint{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8d8880;margin:26px 0 0}
 @media (prefers-reduced-motion:reduce){.coda{min-height:auto;padding:110px var(--pad)}}
 
@@ -1316,23 +1463,46 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 
 /* ---------- 球体轮播的 prev / next（参考站轮播除拖拽外的显式导航） ---------- */
 .porbit__nav{position:absolute;left:0;right:0;bottom:34px;display:flex;align-items:center;justify-content:center;gap:16px;z-index:3}
-.orbbtn{width:38px;height:38px;border-radius:50%;border:1px solid #4a463f;background:transparent;
+/* 球体两侧的上一/下一圆钮：亮字（--invert-fg）在暗档上。描边原来写死 #4a463f，
+   一并换成玻璃发丝令牌——同一个语言里不该有两套边色。 */
+.orbbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--gbtn-hair);
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift);
   color:var(--invert-fg);font-size:14px;line-height:1;cursor:pointer;
   transition:background-color var(--durU) var(--ease),border-color var(--durU) var(--ease),transform var(--durU) var(--ease)}
-.orbbtn:hover{background:var(--brand);border-color:var(--brand);transform:scale(1.06)}
+.orbbtn:hover{background-color:var(--gbtn-body-hi);border-color:var(--gbtn-hair-hi);transform:scale(1.06)}
 .orbbtn:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 .orbidx{font-size:10px;letter-spacing:.24em;color:#8d8880;min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
 
 /* ---------- 展厅灯光切换（等价于参考站 /contact/ 的 change→材质） ---------- */
 .room__ctl{position:absolute;top:14px;right:14px;z-index:3;display:flex;gap:6px}
 .roomtheme{font-size:10px;letter-spacing:.18em;text-transform:uppercase;padding:7px 12px;border-radius:999px;
-  border:1px solid rgba(242,238,233,.28);background:rgba(11,11,10,.42);color:#e7e5e0;cursor:pointer;
+  border:1px solid var(--gbtn-hair);
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift);
+  color:#e7e5e0;cursor:pointer;
   transition:background-color var(--durU) var(--ease),border-color var(--durU) var(--ease),color var(--durU) var(--ease)}
 .roomtheme:hover{border-color:var(--brand)}
-.roomtheme.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.roomtheme.on{background-color:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
 .roomtheme:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 /* 提示文字带底衬，切到白盒展厅时仍可读 */
 .roomsec .room__hint{color:#8d8880;text-shadow:0 1px 0 rgba(0,0,0,.55)}
 .roomsec[data-theme="1"] .room__hint{color:#5c584f;text-shadow:none}
-.roomsec[data-theme="1"] .roomtheme{background:rgba(255,255,255,.6);border-color:rgba(17,17,17,.22);color:#3a3733}
-.roomsec[data-theme="1"] .roomtheme.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+/* 白盒展厅：同一套玻璃换成"亮场上的暗档"——字是深字，所以底要压暗才读得出来。
+   用长写而不是 background 简写：简写会连 background-image 一起重置，
+   那条高光层在这里就成了"写了等于没写"。 */
+.roomsec[data-theme="1"] .roomtheme{background-image:var(--gbtn-hi);background-color:rgba(255,255,255,.6);
+  border-color:rgba(17,17,17,.22);color:#3a3733;box-shadow:var(--gbtn-inset)}
+.roomsec[data-theme="1"] .roomtheme.on{background-color:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+
+/* 系统强制配色（对照/单色模式）：系统只接管 color / background-color / border-color /
+   outline 这一类属性，背景渐变、box-shadow、背景模糊都不在清单里——留着就会在系统
+   给的单色底上多出一块自己发亮的板子，把前景压花。所以整层撤掉，只留形状与间距。 */
+@media (forced-colors:active){
+  .pill,.pill--solid,.hero .htag,.dotbtn,.soundbtn,.langsw,.langsw button,
+  .langsw button[aria-pressed="true"],.filters button,.filters button.on,
+  .orbbtn,.roomtheme,.swcta,.ppcta,.menu,.indexmode,.lb{
+    background-image:none;box-shadow:none;
+    -webkit-backdrop-filter:none;backdrop-filter:none}
+  .menu .mrow::before{background-image:none;box-shadow:none}
+}

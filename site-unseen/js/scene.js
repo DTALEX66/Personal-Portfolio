@@ -17,6 +17,20 @@
      Line 的默认命中阈值是 1 个世界单位，比一张卡片还大。 */
   function NO_RAYCAST() {}
 
+  /* 全屏玻璃层（菜单 / 索引层）打开时让身后的场景停帧，两个理由叠在一起：
+     ① 那两层是满屏 backdrop-filter，背景每失效一次就得重模糊一次；场景停住后
+        合成器不再重算，模糊只付一次，而不是每帧一次。
+     ② 层盖满视口时身后本来就被遮住，继续算帧是纯浪费。
+     不立刻停：先让抽卡收回的弹簧跑完（700ms，与层自己揭开的时间同量级），
+     否则卡片会冻在"半出"的姿态上，透过玻璃看得见一个怪形状。 */
+  var idleStamp = 0;
+  function overlayIdle(now) {
+    var b = global.document && global.document.body;
+    if (!b || !b.classList.contains("overlay-open")) { idleStamp = 0; return false; }
+    if (!idleStamp) idleStamp = now;
+    return now - idleStamp > 700;
+  }
+
   /* "每帧逼近固定比例"把观感绑在帧率上：0.06/帧在 60fps 约 0.25s 收敛，
      在 20fps 只有 3 帧、不到 0.15s 就到底，慢机器上手感反而更快。
      按 dt 折算成等效比例后，任何帧率下同样的墙钟时间走同样的行程；
@@ -633,6 +647,9 @@
 
     var lastT = 0;
     function frame(now) {
+      /* 停帧要排在 painted++ 之前：那个计数数的是"真的算过几帧"，
+         外部拿它判断动效有没有在跑，停帧期间它必须不涨。 */
+      if (overlayIdle(now)) { lastT = 0; return; }
       painted++;                        // 只数"真的算过几帧"，外部按 rAF 采样比它密
       var t = (now - t0) / 1000;
       /* dt 上限 250ms：后台标签回来时 now 会跳几秒，不夹的话弹簧一步冲到底，
@@ -982,6 +999,9 @@
     var last = performance.now(), frames = 0, acc = 0, tier = 0, DPR0 = renderer.getPixelRatio();
     var lastTick = performance.now();
     function tick(now) {
+      /* 球体和首屏舞台同理：菜单/索引层是满屏玻璃，身后那两层画布只要还在更新，
+         浏览器就要把整块背景重新模糊一遍。停帧的判据与理由见 overlayIdle。 */
+      if (overlayIdle(now)) { lastTick = now; return; }
       var dt = Math.min(0.1, Math.max(0.001, (now - lastTick) / 1000)); lastTick = now;
       if (!dragging) { tyaw += (spin + vel) * dt * 60; vel = decayTo(vel, 0.94, dt); }
       yaw = easeTo(yaw, tyaw, 0.08, dt);
@@ -1140,6 +1160,9 @@
     }
     var lastRoom = performance.now();
     function tick(now) {
+      /* 案例详情页的顶栏同样能开菜单——那是一层满屏玻璃。展厅相机虽然只在指针
+         动的时候才转，但它每帧都在重绘，玻璃就得每帧重模糊。判据见 overlayIdle。 */
+      if (overlayIdle(now)) { lastRoom = now; return; }
       var dt = Math.min(0.1, Math.max(0.001, (now - lastRoom) / 1000)); lastRoom = now;
       yaw = easeTo(yaw, tyaw, 0.06, dt); pitch = easeTo(pitch, tpitch, 0.06, dt);
       camera.rotation.y = -yaw;
