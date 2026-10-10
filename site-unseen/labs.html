@@ -69,6 +69,8 @@
     var titleEn = (D.XTEN || {})[x.slug] || "";
     var visual;
     if (x.src) {
+      /* 盒子高度交给图片自己：imgHtml 已经写了真实 width/height，
+         .lv 不再套固定 aspect-ratio（见 CSS 里 .lv 与 .lv.gray 的分工）。 */
       visual = '<div class="lv">' + H.imgHtml(D.M(x.src), x.title) + "</div>";
     } else {
       visual = '<div class="lv gray" style="background:repeating-linear-gradient(45deg,var(--paper),var(--paper) 12px,var(--white) 12px,var(--white) 24px);color:var(--ink)">' + x.kind + "</div>";

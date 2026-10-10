@@ -330,9 +330,12 @@ window.DTS = {
     { slug: "preflight", title: "交付前预检", kind: "Code", src: "live-preflight", note: "把问题拦在导出之前" },
     { slug: "construction", title: "构成拆解", kind: "Graphic", src: "construction", note: "基准轴与八列栅格" },
     { slug: "application-sheet", title: "应用延展", kind: "Graphic", src: "applications-left", note: "同一套语言换媒介" },
-    { slug: "placeholder-ai-image", title: "AI 图像实验", kind: "AI Image", src: "", note: "Replace with real work" },
-    { slug: "placeholder-shader", title: "Shader 实验", kind: "WebGL", src: "", note: "Replace with real work" },
-    { slug: "placeholder-video", title: "影像片段", kind: "AI Video", src: "", note: "Replace with real work" }
+    /* 这三项还没有自己的成品图，先借站内已有作品的视觉当占位（主人 2026-10-10 指定：
+       "各类作品放里当作占位，后期我会换成自己的"）。note 里写明是占位，
+       不能让它读起来像这三项实验已经出了成果。 */
+    { slug: "placeholder-ai-image", title: "AI 图像实验", kind: "AI Image", src: "nocturne-hero", note: "占位图 · 借 NOCTURNE 视觉示意，待换成本项成品" },
+    { slug: "placeholder-shader", title: "Shader 实验", kind: "WebGL", src: "kinetic-field-hero", note: "占位图 · 借 KINETIC FIELD 视觉示意，待换成本项成品" },
+    { slug: "placeholder-video", title: "影像片段", kind: "AI Video", src: "after-hours-screen", note: "占位图 · 借 AFTER HOURS 视觉示意，待换成本项成品" }
   ],
 
   about: {

@@ -589,7 +589,7 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
   transition:color var(--durU),background-color var(--durU),border-color var(--durU);
 }
 .filters button:hover{color:var(--ink)}
-.filters button.on{color:var(--paper);background:var(--ink);border-color:var(--ink)}
+.filters button.on{color:var(--paper)}
 .filters[hidden]{display:none}
 .pfilter{text-align:center;margin:34px 0 0}
 .fbtn .pill__ic{transition:transform var(--durU) var(--ease)}
@@ -713,11 +713,38 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 .notfound{padding:30vh var(--pad);text-align:center}
 
 /* ---------- labs ---------- */
-.labsgrid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;padding:0 var(--pad) 80px}
-.labsgrid .lab{grid-column:span 4;border:var(--line);background:var(--white);overflow:hidden;position:relative}
-.labsgrid .lab.wide{grid-column:span 6}
-.labsgrid .lab .lv{font-family:var(--headline);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--ink);color:var(--paper);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:clamp(20px,3vw,40px)}
-.labsgrid .lab .lv.gray{background:#332F38;color:var(--ink)}
+/* 实验区：真瀑布流。用 CSS columns 而不是 JS masonry——关掉 JS 也得是对的排布。
+   代价是阅读顺序变成"先竖后横"，卡上的 #001…#012 编号仍然自证身份。 */
+.labsgrid{columns:3;column-gap:20px;padding:0 var(--pad) 80px}
+.labsgrid .lab{break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 20px;
+  border:var(--line);background:var(--white);overflow:hidden;position:relative}
+.labsgrid .lab.wide{break-inside:avoid}
+/* .lv 不再统一压成 4/3：有图时高度交给图片自己的 width/height 盒子，
+   原生比例差（5:1 的横带 vs 1.5:1 的方块）就是这里高低差的来源。
+   只有没图的灰底占位才需要兜底比例把盒子撑起来。 */
+.labsgrid .lab .lv{font-family:var(--headline);display:flex;align-items:center;justify-content:center;background:var(--ink);color:var(--paper);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:clamp(20px,3vw,40px)}
+.labsgrid .lab .lv.gray{aspect-ratio:16/9;background:#332F38;color:var(--ink)}
+/* 列数随视口退让：三列在窄屏会把每张图压到看不清，
+   瀑布流的意义是"看得清的作品墙"，不是"挤成马赛克"。
+   写在基础规则之后，同特异度后者胜。 */
+@media(max-width:1080px){.labsgrid{columns:2}}
+@media(max-width:640px){.labsgrid{columns:1}}
+
+/* 首页"陈述段"：左文字右大图。上一版在这里塞三张深色过程截图，
+   亮度 24–42 对页面底色约 11，等于黑纸贴黑纸——所以换成一张亮图，
+   并在它身后垫一层品牌色光晕（径向渐变自带柔边，不用 filter:blur，
+   大半径模糊是每帧合成开销，站规只让合成层属性动）。 */
+.stmt__grid{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);
+  gap:clamp(28px,5vw,72px);align-items:end}
+.stmt__v{margin:0;position:relative}
+.stmt__v::before{content:"";position:absolute;inset:-4% -3%;z-index:0;
+  background:radial-gradient(58% 58% at 62% 46%,
+    color-mix(in srgb,var(--brand) 22%,transparent),transparent 72%)}
+.stmt__v img{position:relative;z-index:1;display:block;width:100%;height:auto;
+  border:var(--line);background:var(--white)}
+.stmt__v figcaption{position:relative;z-index:1;margin-top:12px;font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--gray)}
+@media(max-width:900px){.stmt__grid{grid-template-columns:1fr;align-items:start}}
 
 /* 名称换行时，右侧的类型标签会挤到第二行紧贴着名字（EN 下实测 "AtlasDigital"、"MapCode"）。
    改成上下排：名称一行、类型一行，两者永远不共用一条基线。 */
@@ -1090,7 +1117,7 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 /* ============================================================
    全站按钮语言改为胶囊；标题采用「无衬线粗体 + 衬线斜体」混排
    ============================================================ */
-.btn, .swcta, .ppcta{border-radius:999px;padding:.7em 1.35em;border-color:var(--ink)}
+.btn, .swcta, .ppcta{border-radius:999px;padding:.7em 1.35em}
 .btn::before{border-radius:999px}
 .display em{font-family:var(--serif);font-style:italic;font-weight:300;text-transform:none;letter-spacing:-.01em}
 /* 词盒：内部允许按 overflow-wrap 断行，所以窄视口不会被长词顶出横向滚动。
@@ -1308,4 +1335,3 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 .roomsec[data-theme="1"] .room__hint{color:#5c584f;text-shadow:none}
 .roomsec[data-theme="1"] .roomtheme{background:rgba(255,255,255,.6);border-color:rgba(17,17,17,.22);color:#3a3733}
 .roomsec[data-theme="1"] .roomtheme.on{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
-
