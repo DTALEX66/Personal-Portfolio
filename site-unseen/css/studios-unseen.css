@@ -730,9 +730,10 @@ body.docmode .stagehead{position:static;padding:clamp(84px,12vh,132px) var(--pad
 @media(max-width:1080px){.labsgrid{columns:2}}
 @media(max-width:640px){.labsgrid{columns:1}}
 
-/* 首页"陈述段"：左文字右大图。上一版在这里塞三张深色过程截图，
-   亮度 24–42 对页面底色约 11，等于黑纸贴黑纸——所以换成一张亮图，
-   并在它身后垫一层品牌色光晕（径向渐变自带柔边，不用 filter:blur，
+/* 首页"陈述段"：左文字右大图。页面底色亮度约 11，这里的图必须自己带光——
+   实测亮度 95 的成品能浮起来，亮度 24–42 的过程截图会直接沉进背景，
+   所以右半只放一张亮的，靠原生比例走，不裁切也不拉伸。
+   图身后垫一层品牌色光晕（径向渐变自带柔边，不用 filter:blur，
    大半径模糊是每帧合成开销，站规只让合成层属性动）。 */
 .stmt__grid{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);
   gap:clamp(28px,5vw,72px);align-items:end}
