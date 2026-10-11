@@ -647,10 +647,10 @@ body.overlay-open .hero__marquee .mq{animation-play-state:paused}
   background-image:var(--gbtn-veil);background-color:rgba(26,23,31,.80);
   box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
 /* 面板级的镜面扫过：图上有那条了，但整块玻璃被光扫过才是"液态"的那一下。
-   只动 transform 与 opacity（合成层），和图上那条同源同曲线，方向相反，
+   只动 transform 与 opacity（合成层），和图上那条同源同曲线、方向相反，
    所以悬停时两道光一里一外地错开。
-   注意这里必须有 overflow:hidden 才裁得住平移出界的光带——它会裁焦点环，
-   所以 verify-liquidglass 里专门量了 CTA 的描边环还在不在面板内。 */
+   这里必须有 overflow:hidden 才裁得住平移出界的光带——而 overflow 会连焦点环一起裁，
+   所以 CTA 的描边环是否还在面板内是被单独量过的，不是想当然。 */
 .pp::after{content:"";position:absolute;top:-30%;left:0;width:34%;height:160%;z-index:4;
   pointer-events:none;opacity:0;border-radius:inherit;
   background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.16) 44%,rgba(255,255,255,0));
