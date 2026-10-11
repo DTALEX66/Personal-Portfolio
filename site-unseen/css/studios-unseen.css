@@ -641,11 +641,28 @@ body.overlay-open .hero__marquee .mq{animation-play-state:paused}
    量出来 box-shadow:none、背景透明、与球的重叠面积 0，所以"像贴上去的"不是错觉，
    是它们既没有材质也没有和球建立任何空间关系。现在每条是一块玻璃：
    高光 + 发丝边 + 内高光 + 落影，左右分别对齐标题与球台，压在一起才有前后。 */
-.pp{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,60px);align-items:center;
+.pp{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,60px);align-items:center;
   padding:clamp(22px,3.4vh,34px) clamp(22px,2.6vw,38px);margin:0 0 22px;
-  border:1px solid var(--gbtn-hair);border-radius:20px;
+  border:1px solid var(--gbtn-hair);border-radius:20px;overflow:hidden;
   background-image:var(--gbtn-veil);background-color:rgba(26,23,31,.80);
   box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
+/* 面板级的镜面扫过：图上有那条了，但整块玻璃被光扫过才是"液态"的那一下。
+   只动 transform 与 opacity（合成层），和图上那条同源同曲线，方向相反，
+   所以悬停时两道光一里一外地错开。
+   注意这里必须有 overflow:hidden 才裁得住平移出界的光带——它会裁焦点环，
+   所以 verify-liquidglass 里专门量了 CTA 的描边环还在不在面板内。 */
+.pp::after{content:"";position:absolute;top:-30%;left:0;width:34%;height:160%;z-index:4;
+  pointer-events:none;opacity:0;border-radius:inherit;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.16) 44%,rgba(255,255,255,0));
+  transform:translate3d(-140%,0,0) rotate(15deg);
+  transition:transform 1.05s var(--ease),opacity .5s var(--ease)}
+.pp:hover::after{opacity:1;transform:translate3d(320%,0,0) rotate(15deg)}
+/* 落位：面板进场时从 0.985 弹回 1。写独立属性 scale 而不是塞进 transform——
+   transform 已经被通用揭示规则 [data-reveal] 用来做 translateY，
+   合并进同一条就会互相按掉（这正是磁吸偏移用 translate 的同一个理由）。 */
+.pp[data-reveal]{scale:.985;transition:scale .78s var(--easeSpring),opacity .8s var(--ease),transform .8s var(--ease)}
+.pp[data-reveal].in{scale:1}
+@media (prefers-reduced-motion:reduce){.pp::after{display:none}}
 /* 配图位的装裱（圆角 / 亮边 / 内高光 / 落影 / 悬停光带）由上面那条
    ".sw .swimg,.pp .ppimg,…" 统一给，这里不要再写一遍——写了就把那条按成死声明，
    而且同一个"装裱"会出现两种深浅。只留裁切。 */
