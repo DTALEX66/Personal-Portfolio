@@ -28,10 +28,11 @@
   --brand-ink:#170F0C;
   /* 深色专段（个人项目带 / 结束页 / 预加载）原本用 --paper 当文字色。
      暗色主题下 --paper 就是页面底色，写上去等于隐形；
-     这三个面改用不随主题反相的 invert 令牌。 */
+     这三个面改用不随主题反相的 invert 令牌。
+     这里的发丝线令牌已经删掉：这三条面的线现在统一由 --gbtn-hair 承担，
+     留一个没人用的令牌等于给下一个"照着名字找东西用"的人挖坑。 */
   --invert-bg:#1D1A23;
   --invert-fg:#F2EEE9;
-  --invert-line:rgba(242,238,233,.16);
   /* 一块玻璃的三层：上沿内高光、整圈内边、下沿回光，外加两段落影（远端铺开、近端压死）。
      所有配图位共用这两个令牌，改一次全站跟着变——各处各写一份 box-shadow 的结果是
      后出现的规则把先写的整条覆盖掉（列表弯纸那条就吃掉了玻璃那份），质感忽有忽无。 */
@@ -636,8 +637,18 @@ body.overlay-open .hero__marquee .mq{animation-play-state:paused}
 /* ---------- personal projects dark ---------- */
 .personal{background:var(--invert-bg);color:var(--invert-fg);margin-top:clamp(60px,10vh,120px)}
 .personal .pnote{font-size:13px;letter-spacing:.06em;color:#A9A9A0;max-width:60ch;margin-bottom:40px}
-.pp{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,60px);align-items:center;padding:clamp(40px,7vh,80px) 0;border-top:1px solid var(--invert-line)}
-.pp:last-of-type{border-bottom:1px solid var(--invert-line)}
+/* 个人项目三条：原来每行只有一条上缘发丝线，没有底、没有边、没有投影——
+   量出来 box-shadow:none、背景透明、与球的重叠面积 0，所以"像贴上去的"不是错觉，
+   是它们既没有材质也没有和球建立任何空间关系。现在每条是一块玻璃：
+   高光 + 发丝边 + 内高光 + 落影，左右分别对齐标题与球台，压在一起才有前后。 */
+.pp{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,60px);align-items:center;
+  padding:clamp(22px,3.4vh,34px) clamp(22px,2.6vw,38px);margin:0 0 22px;
+  border:1px solid var(--gbtn-hair);border-radius:20px;
+  background-image:var(--gbtn-veil);background-color:rgba(26,23,31,.80);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
+/* 配图位的装裱（圆角 / 亮边 / 内高光 / 落影 / 悬停光带）由上面那条
+   ".sw .swimg,.pp .ppimg,…" 统一给，这里不要再写一遍——写了就把那条按成死声明，
+   而且同一个"装裱"会出现两种深浅。只留裁切。 */
 .pp .ppimg{overflow:hidden}
 .pp .pptxt .k{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#A9A9A0}
 .pp .pptxt .n{font-family:var(--headline);font-size:clamp(26px,4vw,48px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;margin:10px 0 14px;line-height:1}
@@ -1321,11 +1332,21 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
     --orbit-h:clamp(380px,70vh,700px);--orbit-mt:clamp(34px,6vh,64px)}
 }
 .porbit .psphere{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
-.porbit__hint{position:absolute;left:0;right:0;bottom:8px;margin:0;text-align:center;pointer-events:none;
+/* 第一条玻璃卡压进球的下缘。压叠量与列表上边距分成两个变量，而不是让
+   margin-top 去减同一个数：实测只减不抬时压叠只有 55px（1440 视口），
+   而"控件跟着抬多少"和"卡片压进来多少"本来就是两件事——
+   列表的净位移 = 压叠量 + 原来的正间距，用同一个变量表达会把两者绑死，
+   绑死之后"忘了抬控件"这个真实回归反而测不出来。 */
+.personal #personalList{margin-top:var(--list-mt,clamp(40px,7vh,80px))}
+.personal.sphere-on{--list-mt:-170px;--orbit-lift:170px}
+/* 单列时球在标题上方、卡片本来就在它们下面，没有"压叠"这件事，控件也没别处可让——
+   两个变量一起归零，回到安全间距。 */
+@media (max-width:900px){.personal.sphere-on{--list-mt:clamp(40px,7vh,80px);--orbit-lift:0px}}
+.porbit__hint{position:absolute;left:0;right:0;bottom:calc(8px + var(--orbit-lift,0px));margin:0;text-align:center;pointer-events:none;
   font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#8d8880}
 .porbit.on{display:block;cursor:grab}
 .porbit.on.is-grabbing{cursor:grabbing}
-#personalList{margin-top:clamp(40px,7vh,80px)}
+#personalList{position:relative;z-index:3}
 
 
 /* ---- 实验场：卡片悬停与灯箱出图 ----
@@ -1462,7 +1483,7 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 @media (prefers-reduced-motion:reduce){.pre{transition:none}.pre.out{transform:none;opacity:0}}
 
 /* ---------- 球体轮播的 prev / next（参考站轮播除拖拽外的显式导航） ---------- */
-.porbit__nav{position:absolute;left:0;right:0;bottom:34px;display:flex;align-items:center;justify-content:center;gap:16px;z-index:3}
+.porbit__nav{position:absolute;left:0;right:0;bottom:calc(34px + var(--orbit-lift,0px));display:flex;align-items:center;justify-content:center;gap:16px;z-index:3}
 /* 球体两侧的上一/下一圆钮：亮字（--invert-fg）在暗档上。描边原来写死 #4a463f，
    一并换成玻璃发丝令牌——同一个语言里不该有两套边色。 */
 .orbbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--gbtn-hair);
