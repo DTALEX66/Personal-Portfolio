@@ -57,6 +57,9 @@
   "use strict";
   var D = window.DTS, H = window.DT, L = H.L;
   var grid = document.getElementById("labs");
+  var lb = document.getElementById("lb");
+  var opener = null;          // 是谁打开的，关掉之后焦点要还回去
+  var cards = [];
   var classes = ["", "", "", "", "wide", "wide", "", "", "", "", "", ""];
   D.experiments.forEach(function (x, i) {
     var el = document.createElement("div");
@@ -64,9 +67,18 @@
        两张宽卡就完全拿不到 .lab 的样式（无边框无背景，名称和类型还挤成一行） */
     el.className = "lab " + (classes[i] || "");
     el.setAttribute("data-reveal", "");
+    /* 这张卡是一个打开对话框的按钮，就得能被键盘按到：
+       只挂 click 的话，Tab 走不进来，灯箱（role=dialog）就只能用鼠标打开。
+       名字必须显式给：靠"取自身内容"算出来的可访问名字会把配图位的 alt
+       和卡上的标题一起念一遍（实测读成 "…图形语言推演 图形语言推演 Graphic"）。
+       属性里只能是纯文本，所以用 L.pick 而不是 L.t（后者返回成对 span 的标记）。 */
+    el.setAttribute("role", "button");
+    el.setAttribute("tabindex", "0");
+    el.setAttribute("aria-haspopup", "dialog");
     var num = "Experiment #" + String(i + 1).padStart(3, "0");
     var noteEn = (D.XEN || {})[x.slug] || "";
     var titleEn = (D.XTEN || {})[x.slug] || "";
+    cards.push({ el: el, num: num, zh: x.title, en: titleEn });
     var visual;
     if (x.src) {
       /* 盒子高度交给图片自己：imgHtml 已经写了真实 width/height，
@@ -79,19 +91,48 @@
       '<span class="tag-new">' + num + "</span>" +
       visual +
       '<div class="lm"><span class="n">' + L.t(x.title, titleEn) + '</span><span class="s">' + x.kind + "</span></div>";
-    el.addEventListener("click", function () {
+    function openLb() {
+      opener = el;
       /* alt 必须是纯文本：L.t 返回的是成对 span 的标记，塞进属性里就成了可见标签 */
       var pic = x.src ? '<img class="lbimg" src="' + D.M(x.src) + '" alt="' +
         L.pick(x.title, titleEn) + '" />' : "";
       document.getElementById("lbPic").innerHTML = pic;
       document.getElementById("lbTitle").innerHTML = num + " — " + L.t(x.title, titleEn);
       document.getElementById("lbCopy").innerHTML = L.t(x.note, noteEn);
-      document.getElementById("lb").classList.add("open");
+      lb.classList.add("open");
+      /* 打开之后把焦点交给对话框本身，否则键盘用户"按了回车画面变了、焦点还在原地"，
+         接着按 Tab 会从卡片后面继续走，读屏也不会念出标题。 */
+      lb.setAttribute("tabindex", "-1");
+      lb.focus();
+    }
+    el.addEventListener("click", openLb);
+    el.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+        e.preventDefault();          // 空格默认会滚页
+        openLb();
+      }
     });
     grid.appendChild(el);
   });
-  document.getElementById("lb").addEventListener("click", function () { this.classList.remove("open"); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") document.getElementById("lb").classList.remove("open"); });
+  /* aria-label 是字符串，切语言不会自己变；卡上的可见文字靠成对 span 换，
+     两边必须一起换，否则中文标签配英文文字。 */
+  function relabel() {
+    cards.forEach(function (c) {
+      c.el.setAttribute("aria-label", c.num + " · " + L.pick(c.zh, c.en));
+    });
+  }
+  relabel();
+  document.addEventListener("dt:lang", relabel);
+
+  function closeLb() {
+    if (!lb.classList.contains("open")) return;
+    lb.classList.remove("open");
+    /* 关掉之后焦点必须回到打开它的那张卡：留在已隐藏的对话框上，
+       下一次 Tab 会从页面末尾重新开始，键盘用户等于被丢出原来的位置。 */
+    if (opener && opener.isConnected) opener.focus();
+  }
+  lb.addEventListener("click", closeLb);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeLb(); });
 })();
 </script>
 </body>
