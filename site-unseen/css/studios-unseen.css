@@ -67,6 +67,9 @@
   --glayer-blur:blur(30px) saturate(160%);
   --glayer-top:inset 0 1px 0 rgba(255,255,255,.16);
   --gsweep:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.16) 44%,rgba(255,255,255,0));
+  /* 整块面板的底比按钮档（--gbtn-body .55）更实：面板里坐着小字，
+     半透档压在花画面上会把小字拉到 AA 门槛以下。 */
+  --gpanel-body:rgba(26,23,31,.80);
   --sans:"Neue Montreal","Albert Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   --headline:"Bricolage Grotesque","Noto Serif SC Display","Neue Montreal","Albert Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   --display:"Fraunces","Saol Display","Playfair Display","Noto Serif SC Display",Georgia,serif;
@@ -478,11 +481,23 @@ canvas.stageapp{position:absolute;inset:0;width:100%;height:100%;display:block;z
 .plist.is-hidden:focus-within .pcard:not(:focus){width:1px;height:1px;overflow:hidden;
   clip-path:inset(50%)}
 .plist .pcard{display:block;position:relative;grid-column:span 4;
-  padding:16px 18px;border:1px solid rgba(242,238,233,.2);border-radius:20px;background:var(--white);
+  padding:16px 18px;border:1px solid var(--gbtn-hair);border-radius:20px;overflow:hidden;
+  background-image:var(--gbtn-veil);background-color:var(--white);
   box-shadow:var(--glass-edge),var(--glass-drop)}
 /* 悬停只换外面那段落影，内高光 / 边缘亮圈必须留住——沿用旧纸卡那条落影会在悬停时
    把整套材质一次抹掉，看着像"一碰就变平"。 */
 .plist .pcard:hover{box-shadow:var(--glass-edge),var(--glass-drop-hi)}
+/* 镜面扫过与个人项目带、实验卡同一套语言（34% 宽带、15° 斜切、只动 transform/opacity）。
+   这条清单只在没有 3D 的兜底分支里可见，那时身后是静止文档，模糊买得起但没必要——
+   保持不模糊，跟"压动画布不开模糊"同一条规矩。 */
+.plist .pcard::before{content:"";position:absolute;top:-30%;left:0;width:34%;height:160%;z-index:4;
+  pointer-events:none;opacity:0;
+  background:var(--gsweep);
+  transform:translate3d(-140%,0,0) rotate(15deg);
+  transition:transform 1.05s var(--ease),opacity .5s var(--ease)}
+.plist .pcard:hover::before{opacity:1;transform:translate3d(320%,0,0) rotate(15deg)}
+/* 扫光是"运动"，撤掉；玻璃的底、发丝边、内高光、落影是"材质"，留着。 */
+@media (prefers-reduced-motion:reduce){.plist .pcard::before{display:none}}
 /* 兜底不是"换了个尺寸的舞台"，而是这一页变成普通文档：一屏锁死和绝对定位的页头
    都是给画面让位用的，画面不存在时就成了挡住清单的两件事。用一个状态类一次性
    交回文档流，而不是再补一条规则去盖前面的。
@@ -668,7 +683,7 @@ body.overlay-open .hero__marquee .mq{animation-play-state:paused}
 .pp{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,60px);align-items:center;
   padding:clamp(22px,3.4vh,34px) clamp(22px,2.6vw,38px);margin:0 0 22px;
   border:1px solid var(--gbtn-hair);border-radius:20px;overflow:hidden;
-  background-image:var(--gbtn-veil);background-color:rgba(26,23,31,.80);
+  background-image:var(--gbtn-veil);background-color:var(--gpanel-body);
   box-shadow:var(--gbtn-inset),var(--gbtn-lift)}
 /* 面板级的镜面扫过：图上有那条了，但整块玻璃被光扫过才是"液态"的那一下。
    只动 transform 与 opacity（合成层），和图上那条同源同曲线、方向相反，
@@ -934,7 +949,15 @@ body.overlay-open .dbrand__sweep{animation-play-state:paused}
 }
 .about .alist .al h2{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray);margin-bottom:10px}
 .about .alist .al p{font-size:15px;line-height:1.7;max-width:34ch}
-.about .acert{margin:30px var(--pad) 90px;padding:30px;border:1px solid var(--ink);display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center}
+/* 认证条是一块面板，不是一张贴了硬黑描边的纸：换成与个人项目带同一档的玻璃
+   （高光渐变 + 半透面板底 + 发丝边 + 内高光 + 落影）。
+   这一页没有画布，模糊买得起，所以走 opt-in 那一档。
+   底必须够实：里面的 .d 是 --gray 小字，坐在半透档上会掉到 AA 以下。 */
+.about .acert{margin:30px var(--pad) 90px;padding:30px;border:1px solid var(--gbtn-hair);
+  border-radius:20px;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center;
+  background-image:var(--gbtn-veil);background-color:var(--gpanel-body);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift);
+  -webkit-backdrop-filter:var(--gbtn-blur);backdrop-filter:var(--gbtn-blur)}
 .about .acert .t{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
 .about .acert .d{font-size:13px;color:var(--gray)}
 
@@ -1242,6 +1265,9 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 .roomtheme:active:not([disabled]){transform:scale(.965)}
 .dotbtn:active:not([disabled]),.soundbtn:active:not([disabled]),
 .fab:active:not([disabled]){transform:scale(.94)}
+/* 网格卡比圆钮大一个数量级，同样的 6% 缩下去会读成"整块塌了"，
+   按压档按面积分档：大面板只收 1%。 */
+.plist .pcard:active:not([disabled]){transform:scale(.99)}
 .pill__ic{font-size:.95em;line-height:1}
 
 /* WebGL 画布内的作品面片用 MeshBasicMaterial，颜色不受光照影响；
@@ -1599,8 +1625,9 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
   .pill,.pill--solid,.hero .htag,.dotbtn,.soundbtn,.langsw,.langsw button,
   .langsw button[aria-pressed="true"],.filters button,.filters button.on,
   .orbbtn,.roomtheme,.swcta,.ppcta,.menu,.indexmode,.lb,
-  .menu .mcols a,.indexmode .ihead .close,.skip,.labsgrid .lab{
+  .menu .mcols a,.indexmode .ihead .close,.skip,.labsgrid .lab,
+  .plist .pcard,.about .acert{
     background-image:none;box-shadow:none;
     -webkit-backdrop-filter:none;backdrop-filter:none}
-  .menu .mrow::before,.labsgrid .lab::before{background-image:none;box-shadow:none}
+  .menu .mrow::before,.labsgrid .lab::before,.plist .pcard::before{background-image:none;box-shadow:none}
 }
