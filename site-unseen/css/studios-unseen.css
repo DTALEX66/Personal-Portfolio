@@ -302,7 +302,7 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
 .indexmode .ihead .close:hover{background-color:var(--gbtn-body-hi);border-color:var(--gbtn-hair-hi)}
 .indexmode .irows{padding:0 var(--pad) var(--chrome-b);position:relative}
 .indexmode .irow{
-  display:grid;grid-template-columns:52px 1fr auto;gap:16px;align-items:baseline;
+  display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:16px;align-items:baseline;
   padding:14px 4px;border-bottom:var(--line);position:relative;z-index:2;
 }
 .indexmode .irow .iyear{font-size:12px;letter-spacing:.16em;color:var(--gray)}
@@ -646,8 +646,17 @@ body.overlay-open .hero__marquee .mq{animation-play-state:paused}
    原先 `grid-column:span 5; grid-column-start:8` 在浏览器里实际只落到 1 条轨道，
    文字列被压成 92px（1440 视口下）——标题三行一字、说明栏 15 字一换。 */
 .sw .swtxt{grid-column:8 / span 5;min-width:0}
-.sw .swtxt .t{font-family:var(--headline);font-size:clamp(24px,4vw,52px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;line-height:1}
+.sw .swtxt .t{font-family:var(--headline);font-size:clamp(24px,4vw,52px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;line-height:1;overflow-wrap:anywhere}
 .sw .swtxt .one{font-size:15px;color:var(--gray);margin-top:14px;max-width:46ch}
+/* 380 以下收成单列。12 栏里给文字只留 5 栏，内宽剩 ~70px：
+   "查看项目 →"那颗胶囊里的文字是 nowrap 的，比列还宽，整页被顶出去 30px，
+   而 body 带 overflow:hidden——顶出去的部分既看不见也滚不到，等于内容丢了。
+   标题也是在这里被迫从 "NOCTURNE" 中间断行。收成一行一份，图在上文字在下。 */
+@media (max-width:380px){
+  .sw .switem{grid-template-columns:minmax(0,1fr)}
+  .sw .swimg,.sw .swtxt,.switem.flip .swimg,.switem.flip .swtxt{grid-column:1 / -1}
+  .switem.flip .swtxt{grid-row:auto}
+}
 .sw .swmeta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:20px}
 /* 标签在上、值在下。必须写 > span：写成 `.swmeta span` 会连里面的
    <span class="t-zh"> 一起命中，(0,2,1) 压过 [data-lang=en] .t-zh{display:none}
@@ -707,7 +716,7 @@ body.overlay-open .hero__marquee .mq{animation-play-state:paused}
    而且同一个"装裱"会出现两种深浅。只留裁切。 */
 .pp .ppimg{overflow:hidden}
 .pp .pptxt .k{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#A9A9A0}
-.pp .pptxt .n{font-family:var(--headline);font-size:clamp(26px,4vw,48px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;margin:10px 0 14px;line-height:1}
+.pp .pptxt .n{font-family:var(--headline);font-size:clamp(26px,4vw,48px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;margin:10px 0 14px;line-height:1;overflow-wrap:anywhere}
 .pp .pptxt .one{font-size:15px;color:#C7C7BE;max-width:52ch}
 .pp .pptxt .flags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .pp .pptxt .flags span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;border:1px solid rgba(242,238,233,.3);border-radius:999px;padding:5px 12px;color:#DADAD2}
@@ -824,7 +833,10 @@ body.overlay-open .dbrand__sweep{animation-play-state:paused}
 .dcover{margin:30px var(--pad) 0}
 .dcover .img{overflow:hidden;background:var(--white)}
 .dcover .img img{object-fit:contain}
-.dmeta{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:40px var(--pad);border-top:var(--line);border-bottom:var(--line)}
+.dmeta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:40px var(--pad);border-top:var(--line);border-bottom:var(--line)}
+/* 240 一档：四栏各剩 ~44px，"项目 Project"、"Ongoing" 这类不换行的短词比栏还宽，
+   整条被顶出视口 10px 又被 body 裁掉。收成两栏，值与标签都留得下。 */
+@media (max-width:420px){.dmeta{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .dmeta .dm > span{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);margin-bottom:6px}
 .dmeta .dm b{font-size:14px;font-weight:600;letter-spacing:.02em}
 .dbody{padding:clamp(60px,10vh,120px) var(--pad);display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px}
@@ -835,6 +847,14 @@ body.overlay-open .dbrand__sweep{animation-play-state:paused}
 .dbody .sticky .st{position:static}
 .dbody .sticky .st h2{font-size:clamp(22px,3vw,34px);font-weight:700;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:10px}
 .dbody .content{grid-column:span 8}
+/* 同上，详情页在 380 以下收成单列：8/12 栏只剩 ~150px，
+   正文与内嵌媒体行被顶出视口 44px，同样被 body 裁成"看不见也滚不到"。
+   单列时左栏不能再吸顶——它已经压在正文上面，吸着会把第一段盖住。 */
+@media (max-width:380px){
+  .dbody{grid-template-columns:minmax(0,1fr)}
+  .dbody .sticky,.dbody .content{grid-column:1 / -1}
+  .dbody .sticky{position:static}
+}
 .dbody .blk{margin-bottom:44px}
 .dbody .blk h3{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray);margin-bottom:14px;font-weight:600}
 .dbody .blk p{font-size:16px;line-height:1.8;max-width:62ch}
@@ -1091,8 +1111,16 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 
 /* ---------- responsive ---------- */
 
-/* 极窄档：编号导航已收进全屏菜单，顶栏只剩 logo + 文字链接 + 圆形菜单钮 + 语言开关。
-   这里只压间距和 logo 字号，不收任何一件——收了就真没地方切语言了。 */
+/* 极窄档（240 一档，折叠屏外屏）：编号导航已在 ≤520 收进全屏菜单，
+   顶栏只剩 logo + 圆形菜单钮 + 语言开关，实测右侧那组的右边缘仍越出视口 10.7px——
+   越出去的是语言开关的 EN 半边，而 body 带 overflow:hidden，
+   看不见也滚不到就等于"没法切语言"。这里只压间距和字距，不收任何一件控件：
+   收了就真的没地方切语言了。 */
+@media (max-width:300px){
+  .topbar{padding:16px 14px}
+  .topbar .right{gap:12px}
+  .topbar .logo{letter-spacing:.12em}
+}
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion:reduce){
