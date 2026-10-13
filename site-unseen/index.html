@@ -301,8 +301,16 @@
     var el = document.createElement("article");
     el.className = "pp";
     el.setAttribute("data-reveal", "");
+    /* 这里的配图以前是裸 <img>，全站唯一没按原生尺寸留盒子的一处。
+       行高本来由文字栏决定，所以今天看不出塌；但 img.fit 带着 max-height:100%，
+       父盒没有确定高度时它按 0 算——换成带比例的盒子才既留住盒子又不夹扁图。
+       比例与宽高都取自真实素材尺寸（IMGDIM），不猜。 */
+    var psrc = D.M(p.cover);
+    var pdim = H.imgDim(psrc);
+    var ppimg = '<div class="ppimg"' + (pdim ? ' style="aspect-ratio:' + pdim.w + "/" + pdim.h + '"' : "") +
+      ">" + H.imgHtml(psrc, p.full || p.name) + "</div>";
     el.innerHTML =
-      '<div class="ppimg"><img src="' + D.M(p.cover) + '" alt="' + (p.full || p.name) + '" loading="lazy" /></div>' +
+      ppimg +
       '<div class="pptxt">' +
       '<div class="k">' + p.status + " · " + p.year + "</div>" +
       '<div class="n">' + H.enOf(p, "full") + "</div>" +

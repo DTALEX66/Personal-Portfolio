@@ -158,7 +158,7 @@ button{font-family:inherit;background:none;border:0;color:inherit;cursor:pointer
 @media (max-width:520px){
   .topbar .right .navbtn{display:none}
 }
-.navbtn{display:inline-flex;align-items:center;min-height:24px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);transition:color var(--durU)}
+.navbtn{display:inline-flex;align-items:center;min-height:24px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);transition:color var(--durU),transform var(--durU)}
 .topbar .navbtn:hover{color:var(--ink)}
 .topbar .navbtn.on{color:var(--ink)}
 body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
@@ -274,7 +274,7 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
   padding:6px 12px;border:1px solid var(--gbtn-hair);border-radius:999px;
   background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
   box-shadow:var(--gbtn-inset);
-  transition:color var(--durU),background-color var(--durU),border-color var(--durU)}
+  transition:color var(--durU),background-color var(--durU),border-color var(--durU),transform var(--durU)}
 .menu .mcols a:hover{color:var(--ink);background-color:var(--gbtn-body-hi);border-color:var(--gbtn-hair-hi)}
 
 /* ---------- index mode ---------- */
@@ -298,7 +298,7 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
   padding:6px 12px;border:1px solid var(--gbtn-hair);border-radius:999px;
   background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
   box-shadow:var(--gbtn-inset);
-  transition:color var(--durU),background-color var(--durU),border-color var(--durU)}
+  transition:color var(--durU),background-color var(--durU),border-color var(--durU),transform var(--durU)}
 .indexmode .ihead .close:hover{background-color:var(--gbtn-body-hi);border-color:var(--gbtn-hair-hi)}
 .indexmode .irows{padding:0 var(--pad) var(--chrome-b);position:relative}
 .indexmode .irow{
@@ -908,10 +908,14 @@ body.overlay-open .dbrand__sweep{animation-play-state:paused}
 .lab .tag-new{position:absolute;top:12px;left:12px;background:var(--paper);color:var(--ink);font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px}
 
 /* lightbox */
-/* lightbox：一整块压暗 + 模糊的玻璃幕，身后页面停着不动时才付一次合成的钱 */
+/* lightbox：一整块压暗 + 模糊的玻璃幕，身后页面停着不动时才付一次合成的钱。
+   模糊与饱和走满屏层的同一档令牌——它和菜单、索引层是同一类东西，
+   半径差 4px 看不出来，只会让三处在不同屏幕上对不齐。
+   底比那两层更暗是有意的：这一层要给一张图让位，画面是主角，
+   所以保留自己那份 rgba(8,8,8,.78)（--glayer-body 是 .66）。 */
 .lb{position:fixed;inset:0;z-index:190;
   background-image:var(--gbtn-veil);background-color:rgba(8,8,8,.78);
-  -webkit-backdrop-filter:blur(26px) saturate(150%);backdrop-filter:blur(26px) saturate(150%);
+  -webkit-backdrop-filter:var(--glayer-blur);backdrop-filter:var(--glayer-blur);
   display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;
   opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
 .lb.open{opacity:1;visibility:visible;transition:opacity .3s}
@@ -1129,6 +1133,9 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 .indexmode .iprev.on{opacity:1;transform:translateY(-50%) translate3d(0,0,0) scale(1)}
 .indexmode .irow{transition:transform var(--durU) var(--ease),opacity var(--durU)}
 .indexmode .irow:hover{transform:translateX(12px)}
+/* 索引行是按下去要"收一下"的整行：与 hover 的位移合成着写，
+   单写 scale 会把让位量抹掉（按住的瞬间整行跳回左边）。 */
+.indexmode .irow:active:not([disabled]){transform:translateX(12px) scale(.99)}
 .indexmode .irow:focus-visible{transform:translateX(12px);outline:2px solid var(--brand);outline-offset:4px}
 .indexmode .irow:hover .iname{color:var(--brand)}
 .indexmode .irow .iname{transition:color var(--durU)}
@@ -1141,6 +1148,8 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 .dnav{position:static;display:flex;flex-direction:column;gap:10px;margin-top:26px}
 .dnav a{display:flex;align-items:center;min-height:24px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);padding-left:14px;border-left:var(--line);transition:color var(--durU),border-color var(--durU),transform var(--durU) var(--ease)}
 .dnav a:hover{color:var(--ink);transform:translateX(3px)}
+/* 同上：章节链接的悬停本来就让位 3px，按下要把这个让位保住再收一档 */
+.dnav a:active:not([disabled]){transform:translateX(3px) scale(.965)}
 .dnav a.on{color:var(--ink);border-left:2px solid var(--brand)}
 
 /* 窄屏：编号导航收进全屏菜单，顶栏不许断字换行 */
@@ -1268,6 +1277,12 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 /* 网格卡比圆钮大一个数量级，同样的 6% 缩下去会读成"整块塌了"，
    按压档按面积分档：大面板只收 1%。 */
 .plist .pcard:active:not([disabled]){transform:scale(.99)}
+/* 菜单底部的链接胶囊、索引层的关闭胶囊、顶栏导航字：和语言切换同档。
+   这里只收"悬停不位移"的控件——:hover 自己写了 transform 的那几件
+   （索引行、详情页章节、实验卡）必须把按压档与悬停位移合成着写，
+   拆开来写会让按下去把抬起效果吃掉，所以它们各自留在自己的块里。 */
+.menu .mcols a:active:not([disabled]),.indexmode .ihead .close:active:not([disabled]),
+.topbar .navbtn:active:not([disabled]){transform:scale(.965)}
 .pill__ic{font-size:.95em;line-height:1}
 
 /* WebGL 画布内的作品面片用 MeshBasicMaterial，颜色不受光照影响；
@@ -1312,8 +1327,15 @@ body.overlay-open .dotbtn[aria-expanded="true"]::after{color:var(--ink)}
 /* 参考站按钮手法：一条暂停的 timeline，mouseenter play / mouseleave reverse。
    原文案向下退场到 250%，克隆文案从上方 -250% 进入 0；两层时长不同（.6 / .8），
    ease 用 expo.inOut —— 这个错位的速度差就是它"有重量"的原因。 */
-.roll{display:inline-block;overflow:hidden;height:1.15em;line-height:1.15em;vertical-align:-.28em}
+.roll{display:inline-block;position:relative;overflow:hidden;height:1.15em;line-height:1.15em;vertical-align:-.28em}
 .roll__set{display:block;white-space:nowrap}
+/* 第二份必须叠在第一份上面，不能留在常规流里。
+   两份都是块级时，克隆那份的流位置本来就在原文案下面一行（1.15em），
+   于是 hover 结束时：原文案移到 +250%（出窗），克隆那份回到 translateY(0)
+   ——回到的是"窗口下面那一行"，还是出窗。结果是两份都不在窗口里，
+   悬停一停，顶栏导航与按钮上的字整个消失（实测窗口高 13.8px，两份分别在 34.5 与 13.8）。
+   绝对定位只挂克隆那份：原文案继续撑着宽高，克隆那份从同一位置进场。 */
+.roll__set:last-child{position:absolute;left:0;top:0}
 .roll__set:first-child{transform:translateY(0);transition:transform .6s var(--easeExpo)}
 .roll__set:last-child{transform:translateY(-250%);transition:transform .8s var(--easeExpo)}
 .roll:hover .roll__set:first-child,.navbtn:focus-visible .roll__set:first-child,
@@ -1371,7 +1393,6 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
   transition:transform var(--durU) var(--ease),background-color var(--durU)}
 .fab i{width:4px;height:4px;border-radius:50%;background:currentColor;display:block;opacity:.85}
 .fab:hover{transform:scale(1.07);background-color:var(--gbtn-solid-hi)}
-.fab:active{transform:scale(.94)}
 .fab[hidden]{display:none}
 
 /* 右下圆形声音开关。放右下而不是左下，因为左下已经被索引圆钮占了，
@@ -1441,6 +1462,13 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
    后者与 [data-reveal].in 同特异度且写得更早，会被 transform:none 压住，
    于是"加了 hover 但永远不动"。 */
 .labsgrid .lab:hover{transform:translateY(-6px)}
+/* 实验卡现在是一张按钮（点开灯箱，键盘也按得动），就得按得下去。
+   两处要一起写对：
+     · 与 hover 的 -6px 抬起合成，只写 scale 会让卡片按下去时先掉回原位；
+     · 这张卡的 transform 本来由 [data-reveal] 那条给到 .8s（入场与抬起用的），
+       按压反馈要读得出来必须快，所以在这里把时长收短；松开时回到 .8s，
+       差的只有那 1%，看不出来。 */
+.labsgrid .lab:active:not([disabled]){transform:translateY(-6px) scale(.99);transition-duration:.16s}
 .labsgrid .lab .lv img{transition:transform .8s var(--ease)}
 .labsgrid .lab:hover .lv img{transform:scale(1.05)}
 .labsgrid .lab::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
@@ -1467,6 +1495,9 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
   background:var(--white);border:var(--line)}
 @media (prefers-reduced-motion:reduce){
   .labsgrid .lab:hover{transform:none}
+  /* 按下反馈是"这件事收到了"，不是装饰动作，reduce 档也要留；
+     但上面那条抬起已经被撤掉，这里不能再带着 -6px，否则一按就先往下跳。 */
+  .labsgrid .lab:active:not([disabled]){transform:scale(.99)}
   .labsgrid .lab:hover .lv img{transform:none}
   .labsgrid .lab::after,.labsgrid .lab .tag-new{transition:none}
   /* 扫光是"运动"，撤掉；玻璃的底、发丝边、内高光、落影是"材质"，留着。 */
