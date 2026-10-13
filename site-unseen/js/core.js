@@ -392,7 +392,12 @@
       '<button class="dotbtn" data-menu-toggle aria-expanded="false" aria-label="' + Lang.pick("菜单", "Menu") + '"><i></i><i></i></button>' +
       langSwitch() +
       "</div>";
-    document.body.prepend(tb);
+    /* 顶栏不能插到"跳到主要内容"前面：跳转链接要成为键盘遇到的第一个可聚焦件，
+       否则它就没有意义了。body.prepend 会把它挤到顶栏那一组之后。
+       上面已经 remove 掉旧顶栏，所以语言切换重建时这个顺序仍然正确。 */
+    var skip = document.querySelector(".skip");
+    if (skip) skip.insertAdjacentElement("afterend", tb);
+    else document.body.prepend(tb);
     $$("[data-lang-btn]", tb).forEach(function (b) {
       b.addEventListener("click", function () { Lang.set(b.getAttribute("data-lang-btn")); Sound.click(); });
     });
