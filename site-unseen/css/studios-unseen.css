@@ -285,13 +285,18 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
 }
 .indexmode.open{clip-path:inset(0 0 0% 0);visibility:visible;transition:clip-path .6s var(--easeSharp)}
 .indexmode .ihead{display:flex;justify-content:space-between;align-items:baseline;padding:120px var(--pad) 8px}
-/* 索引层右上角那个"关闭"是这一层里唯一的动作，和菜单底部链接同档。 */
-.indexmode .ihead .close{display:inline-flex;align-items:center;min-height:24px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);
+/* 索引层的眉标不能沿用 --gray：这一层的底是"模糊之后的画面"，
+   比页面底更亮更花，实测 #A39B92 在上面只有 3.96:1（小字要 4.5）。
+   全站别处的 .tag 坐在页面底上是够的，所以只改这一层。 */
+.indexmode .ihead .tag{color:var(--ink)}
+/* 索引层右上角那个"关闭"是这一层里唯一的动作，和菜单底部链接同档。
+   底色同样不能沿用 --gray：实测在玻璃胶囊上只有 3.48:1。 */
+.indexmode .ihead .close{display:inline-flex;align-items:center;min-height:24px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);
   padding:6px 12px;border:1px solid var(--gbtn-hair);border-radius:999px;
   background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
   box-shadow:var(--gbtn-inset);
   transition:color var(--durU),background-color var(--durU),border-color var(--durU)}
-.indexmode .ihead .close:hover{color:var(--ink);background-color:var(--gbtn-body-hi);border-color:var(--gbtn-hair-hi)}
+.indexmode .ihead .close:hover{background-color:var(--gbtn-body-hi);border-color:var(--gbtn-hair-hi)}
 .indexmode .irows{padding:0 var(--pad) var(--chrome-b);position:relative}
 .indexmode .irow{
   display:grid;grid-template-columns:52px 1fr auto;gap:16px;align-items:baseline;
@@ -895,7 +900,10 @@ body.overlay-open .dbrand__sweep{animation-play-state:paused}
   display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;
   opacity:0;visibility:hidden;transition:opacity .3s,visibility 0s .3s}
 .lb.open{opacity:1;visibility:visible;transition:opacity .3s}
-.lb .lbtitle{color:var(--paper);font-size:13px;letter-spacing:.2em;text-transform:uppercase}
+/* 标题必须用"墨"：--paper 在这个暗色主题里是页面底（近黑），
+   写在灯箱这层暗玻璃上就是黑字压黑底，实测对比 1.38:1，等于看不见。
+   旁边 .lbcopy 用的是浅色，所以只有这一行读不出来。 */
+.lb .lbtitle{color:var(--ink);font-size:13px;letter-spacing:.2em;text-transform:uppercase}
 .lb .lbcopy{color:#C7C7BE;font-size:14px;max-width:52ch;text-align:center}
 
 /* ---------- about ---------- */
