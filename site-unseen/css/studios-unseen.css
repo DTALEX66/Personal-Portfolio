@@ -59,6 +59,14 @@
   --gbtn-ring:inset 0 0 0 1px rgba(255,255,255,.26);
   --gbtn-lift:0 10px 26px -12px rgba(0,0,0,.72),0 2px 6px -3px rgba(0,0,0,.6);
   --gbtn-blur:blur(16px) saturate(170%);
+  /* 满屏玻璃层（菜单 / 索引模式）与"镜面扫过"那条光带各有自己的档位。
+     层是整块画面的暗玻璃，控件是贴在画面上的小玻璃，两者浓度不一样，所以分开列。
+     扫光写成令牌是因为它被两块面板逐字复用了一次（个人项目带、实验区卡片）：
+     值只该有一处，改一处两处同步，而不是各写各的再慢慢漂移。 */
+  --glayer-body:rgba(12,11,13,.66);
+  --glayer-blur:blur(30px) saturate(160%);
+  --glayer-top:inset 0 1px 0 rgba(255,255,255,.16);
+  --gsweep:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.16) 44%,rgba(255,255,255,0));
   --sans:"Neue Montreal","Albert Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   --headline:"Bricolage Grotesque","Noto Serif SC Display","Neue Montreal","Albert Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   --display:"Fraunces","Saol Display","Playfair Display","Noto Serif SC Display",Georgia,serif;
@@ -212,9 +220,9 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
    付一次的钱而不是每帧的钱。若哪天停更被拿掉，这两块的模糊要一起撤掉。 */
 .menu{
   position:fixed;inset:0;z-index:150;
-  background-image:var(--gbtn-veil);background-color:rgba(12,11,13,.66);
-  -webkit-backdrop-filter:blur(30px) saturate(160%);backdrop-filter:blur(30px) saturate(160%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.16);
+  background-image:var(--gbtn-veil);background-color:var(--glayer-body);
+  -webkit-backdrop-filter:var(--glayer-blur);backdrop-filter:var(--glayer-blur);
+  box-shadow:var(--glayer-top);
   display:flex;flex-direction:column;justify-content:flex-start;
   /* 放不下时必须有出口：fixed + justify-content:center 的溢出上下两头都滚不回来，
      所以改成 flex-start 起排 + 可滚，居中交给 .mbottom 的 margin-top:auto。 */
@@ -257,22 +265,33 @@ body.top-solid .topbar{background:var(--paper);box-shadow:0 1px 0 var(--hair)}
   justify-content:space-between;align-items:flex-end;
 }
 .menu .mcols{display:flex;flex-wrap:wrap;gap:14px 34px}
-.menu .mcols a{display:inline-flex;align-items:center;min-height:24px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);transition:color var(--durU)}
-.menu .mcols a:hover{color:var(--ink)}
+/* 菜单底部那行链接是"能点的"，不是正文：给它和联系页社交胶囊同一档玻璃。
+   不开模糊——它已经压在满屏玻璃层上，再模糊一层只是重复付费，视觉上看不出来。 */
+.menu .mcols a{display:inline-flex;align-items:center;min-height:24px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gray);
+  padding:6px 12px;border:1px solid var(--gbtn-hair);border-radius:999px;
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset);
+  transition:color var(--durU),background-color var(--durU),border-color var(--durU)}
+.menu .mcols a:hover{color:var(--ink);background-color:var(--gbtn-body-hi);border-color:var(--gbtn-hair-hi)}
 
 /* ---------- index mode ---------- */
 .indexmode{
   position:fixed;inset:0;z-index:170;
-  background-image:var(--gbtn-veil);background-color:rgba(12,11,13,.66);
-  -webkit-backdrop-filter:blur(30px) saturate(160%);backdrop-filter:blur(30px) saturate(160%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.16);
+  background-image:var(--gbtn-veil);background-color:var(--glayer-body);
+  -webkit-backdrop-filter:var(--glayer-blur);backdrop-filter:var(--glayer-blur);
+  box-shadow:var(--glayer-top);
   clip-path:inset(0 0 100% 0);visibility:hidden;overflow-y:auto;
   transition:clip-path .6s var(--easeSharp),visibility 0s .6s;
 }
 .indexmode.open{clip-path:inset(0 0 0% 0);visibility:visible;transition:clip-path .6s var(--easeSharp)}
 .indexmode .ihead{display:flex;justify-content:space-between;align-items:baseline;padding:120px var(--pad) 8px}
-.indexmode .ihead .close{display:inline-flex;align-items:center;min-height:24px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray)}
-.indexmode .ihead .close:hover{color:var(--ink)}
+/* 索引层右上角那个"关闭"是这一层里唯一的动作，和菜单底部链接同档。 */
+.indexmode .ihead .close{display:inline-flex;align-items:center;min-height:24px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gray);
+  padding:6px 12px;border:1px solid var(--gbtn-hair);border-radius:999px;
+  background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset);
+  transition:color var(--durU),background-color var(--durU),border-color var(--durU)}
+.indexmode .ihead .close:hover{color:var(--ink);background-color:var(--gbtn-body-hi);border-color:var(--gbtn-hair-hi)}
 .indexmode .irows{padding:0 var(--pad) var(--chrome-b);position:relative}
 .indexmode .irow{
   display:grid;grid-template-columns:52px 1fr auto;gap:16px;align-items:baseline;
@@ -653,7 +672,7 @@ body.overlay-open .hero__marquee .mq{animation-play-state:paused}
    所以 CTA 的描边环是否还在面板内是被单独量过的，不是想当然。 */
 .pp::after{content:"";position:absolute;top:-30%;left:0;width:34%;height:160%;z-index:4;
   pointer-events:none;opacity:0;border-radius:inherit;
-  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.16) 44%,rgba(255,255,255,0));
+  background:var(--gsweep);
   transform:translate3d(-140%,0,0) rotate(15deg);
   transition:transform 1.05s var(--ease),opacity .5s var(--ease)}
 .pp:hover::after{opacity:1;transform:translate3d(320%,0,0) rotate(15deg)}
@@ -824,8 +843,14 @@ body.overlay-open .dbrand__sweep{animation-play-state:paused}
 /* 实验区：真瀑布流。用 CSS columns 而不是 JS masonry——关掉 JS 也得是对的排布。
    代价是阅读顺序变成"先竖后横"，卡上的 #001…#012 编号仍然自证身份。 */
 .labsgrid{columns:3;column-gap:20px;padding:0 var(--pad) 80px}
+/* 实验区瀑布流的每一格是一块玻璃，不是一张贴了描边的纸：
+   高光渐变 + 半透底 + 发丝边 + 内高光 + 落影。这一页没有画布，模糊买得起，
+   所以它是 opt-in 的那一档。 */
 .labsgrid .lab{break-inside:avoid;-webkit-column-break-inside:avoid;margin:0 0 20px;
-  border:var(--line);background:var(--white);overflow:hidden;position:relative}
+  border:1px solid var(--gbtn-hair);background-image:var(--gbtn-veil);background-color:var(--gbtn-body);
+  box-shadow:var(--gbtn-inset),var(--gbtn-lift);
+  -webkit-backdrop-filter:var(--gbtn-blur);backdrop-filter:var(--gbtn-blur);
+  overflow:hidden;position:relative}
 .labsgrid .lab.wide{break-inside:avoid}
 /* .lv 不再统一压成 4/3：有图时高度交给图片自己的 width/height 盒子，
    原生比例差（5:1 的横带 vs 1.5:1 的方块）就是这里高低差的来源。
@@ -1108,8 +1133,12 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
 /* 藏/显用 translateY，不用 top：top 是布局属性，过渡它每帧都要重排一次；
    transform 只搬已经画好的纹理。位移量 72 = 落点 12 + 原先的 -60，
    两种写法在隐藏态的盒子顶部都正好是 -60px，可见结果一个像素都没变。 */
-.skip{position:fixed;left:12px;top:12px;transform:translateY(-72px);z-index:300;background:var(--ink);color:var(--paper);
-  font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:10px 16px;border-radius:2px;
+/* 跳到主内容：亮档玻璃胶囊（深字）。它的显隐一直是 transform 驱动的，
+   这次没碰——换的是画法，不是机制。 */
+.skip{position:fixed;left:12px;top:12px;transform:translateY(-72px);z-index:300;
+  background-image:var(--gbtn-hi);background-color:var(--gbtn-solid);color:var(--paper);
+  box-shadow:var(--gbtn-inset),var(--gbtn-ring),var(--gbtn-lift);
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:10px 16px;border-radius:999px;
   transition:transform var(--durU) var(--ease)}
 .skip:focus{transform:translateY(0)}
 
@@ -1194,10 +1223,17 @@ a:focus-visible,button:focus-visible,[role="button"]:focus-visible,.pill:focus-v
    否则悬停实心胶囊会被 .pill:hover 的暗档背景按成深字压暗底。 */
 .pill--solid:hover{background-color:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
 /* 玻璃要按得下去：所有玻璃控件共用一条按压曲线，只动 transform。
-   一律带 :not([disabled])，否则会把上面 .pill[disabled]{transform:none} 按成死声明。 */
-.pill:active:not([disabled]),.orbbtn:active,.filters button:active,
-.langsw button:active,.roomtheme:active{transform:scale(.965)}
-.dotbtn:active,.soundbtn:active{transform:scale(.94)}
+   每一条都带 :not([disabled])，有两个理由，缺一个都会坏：
+     · 禁用件不该压下去（.pill[disabled] 那条 transform:none 也不该被这里按成死声明）；
+     · 它把特异度抬到 (0,3,0)。各控件自己的 :hover 也写 transform 且只有 (0,2,0)，
+       而同特异度是"后写的赢"——按压规则写在前、hover 写在后，鼠标按下时两个状态同时成立，
+       于是 hover 的放大档把按压的缩小档压死，按钮看着正常却按不出形变。
+       靠调行序修不了（下一次往文件末尾追加 hover 就会再坏），所以用特异度钉住。 */
+.pill:active:not([disabled]),.orbbtn:active:not([disabled]),
+.filters button:active:not([disabled]),.langsw button:active:not([disabled]),
+.roomtheme:active:not([disabled]){transform:scale(.965)}
+.dotbtn:active:not([disabled]),.soundbtn:active:not([disabled]),
+.fab:active:not([disabled]){transform:scale(.94)}
 .pill__ic{font-size:.95em;line-height:1}
 
 /* WebGL 画布内的作品面片用 MeshBasicMaterial，颜色不受光照影响；
@@ -1377,6 +1413,19 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--brand) 60%,transparent);
   transition:opacity .4s linear}
 .labsgrid .lab:hover::after{opacity:1}
+/* 镜面扫过：与个人项目带那块面板同一套语言（34% 宽带、15° 斜切、只动 transform/opacity）。
+   ::after 已经被"品牌色内圈"占了，所以扫光走 ::before。.lab 本来就有 overflow:hidden，
+   平移出界的部分自然被裁住。 */
+.labsgrid .lab::before{content:"";position:absolute;top:-30%;left:0;width:34%;height:160%;z-index:4;
+  pointer-events:none;opacity:0;
+  background:var(--gsweep);
+  transform:translate3d(-140%,0,0) rotate(15deg);
+  transition:transform 1.05s var(--ease),opacity .5s var(--ease)}
+.labsgrid .lab:hover::before{opacity:1;transform:translate3d(320%,0,0) rotate(15deg)}
+/* 落位回弹与个人项目带那块面板同一档：通用揭示规则已经用 transform 做 translateY，
+   所以这里用独立的 scale（同为合成层属性，不抢那条 transform）。 */
+.labsgrid .lab[data-reveal]{scale:.985;transition:scale .78s var(--easeSpring),opacity .8s var(--ease),transform .8s var(--ease)}
+.labsgrid .lab[data-reveal].in{scale:1}
 .labsgrid .lab:hover .tag-new{transform:translate(0,-2px)}
 .labsgrid .lab .tag-new{transition:transform .4s var(--ease)}
 /* 灯箱里的图：等比放进视口，不裁不拉；没图的占位条目不生成 img */
@@ -1386,6 +1435,8 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
   .labsgrid .lab:hover{transform:none}
   .labsgrid .lab:hover .lv img{transform:none}
   .labsgrid .lab::after,.labsgrid .lab .tag-new{transition:none}
+  /* 扫光是"运动"，撤掉；玻璃的底、发丝边、内高光、落影是"材质"，留着。 */
+  .labsgrid .lab::before{display:none}
 }
 /* 入场分级压缩到 0.2s 内：真实用户更快看到内容，也让无动画环境不依赖 JS 类 */
 .gate .gtitle{transition-delay:.06s}
@@ -1539,8 +1590,9 @@ a:focus-visible .roll__set:last-child{transform:translateY(0)}
 @media (forced-colors:active){
   .pill,.pill--solid,.hero .htag,.dotbtn,.soundbtn,.langsw,.langsw button,
   .langsw button[aria-pressed="true"],.filters button,.filters button.on,
-  .orbbtn,.roomtheme,.swcta,.ppcta,.menu,.indexmode,.lb{
+  .orbbtn,.roomtheme,.swcta,.ppcta,.menu,.indexmode,.lb,
+  .menu .mcols a,.indexmode .ihead .close,.skip,.labsgrid .lab{
     background-image:none;box-shadow:none;
     -webkit-backdrop-filter:none;backdrop-filter:none}
-  .menu .mrow::before{background-image:none;box-shadow:none}
+  .menu .mrow::before,.labsgrid .lab::before{background-image:none;box-shadow:none}
 }
