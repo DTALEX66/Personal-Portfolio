@@ -81,9 +81,16 @@
     cards.push({ el: el, num: num, zh: x.title, en: titleEn });
     var visual;
     if (x.src) {
-      /* 盒子高度交给图片自己：imgHtml 已经写了真实 width/height，
-         .lv 不再套固定 aspect-ratio（见 CSS 里 .lv 与 .lv.gray 的分工）。 */
-      visual = '<div class="lv">' + H.imgHtml(D.M(x.src), x.title) + "</div>";
+      /* 图位的高度必须由 CSS 在首帧就顶住，不能等图片自己报比例。
+         这些图是 loading=lazy 的：请求真正发出之前 Chromium 不给它们任何高度
+         （实测首帧 12 张全是零高、整块瀑布流只有 452px，12 张卡的顶边都在视口里），
+         靠视口判断的滚动揭示就把它们一次点亮，逐张入场当场失效；
+         等 load 也救不回来——懒加载不计入 load，实测它 89ms 就发了。
+         比例用原生尺寸：图位与图同比例，既不留黑边也不变形。 */
+      var src = D.M(x.src);
+      var dm = H.imgDim(src);
+      visual = '<div class="lv"' + (dm ? ' style="aspect-ratio:' + dm.w + "/" + dm.h + '"' : "") +
+        ">" + H.imgHtml(src, x.title) + "</div>";
     } else {
       visual = '<div class="lv gray" style="background:repeating-linear-gradient(45deg,var(--paper),var(--paper) 12px,var(--white) 12px,var(--white) 24px);color:var(--ink)">' + x.kind + "</div>";
     }
